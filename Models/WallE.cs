@@ -4,7 +4,7 @@ public class WallE
     public int X { get; set; }
     public int Y { get; set; }
     public bool IsSpawned = false;
-    public Color currentColor { get; set; } = Color.White;
+    public Color currentColor { get; set; } = Color.Default;
     public int BrushSize { get; set; } = 1;
 
     public void Spawn(int x, int y, PixelCanvas canvas)

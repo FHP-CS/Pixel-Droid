@@ -2,6 +2,42 @@ using Spectre.Console;
 
 public class CommandParser
 {
+    public void Compiler(WallE robot, PixelCanvas canvas)
+    {
+        AnsiConsole.MarkupLine("[blue] Console[/][bold]>[/] (escribe 'run' para ejecutar):");
+        int line = 1;
+        var commands = new List<string>();
+        while (true)
+        {
+            string input = AnsiConsole.Ask<string>("[grey]" + line + "[/][black]>[/]  ");
+            if (input.Trim().Equals("run", StringComparison.OrdinalIgnoreCase))// typed run so lets run the orders!
+            {
+                ExecuteBatch(string.Join("\n", commands), robot, canvas);
+                commands.Clear();
+            }
+            else if (input.Trim().Equals("clear", StringComparison.OrdinalIgnoreCase))// forget about everything! this guy is insane!
+            {
+                commands.Clear();
+                AnsiConsole.Clear();
+            }
+            else //there is no run, or clear, order, he is just typing orders
+            {
+                commands.Add(input);
+                line++;
+            }
+            if (commands.Count == 0) line = 1;
+        }
+    }
+    public void ExecuteBatch(string multiCommand, WallE robot, PixelCanvas canvas)
+    {
+        string[] commands = multiCommand.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);// pico en los separadores
+        foreach (var cmd in commands)
+        {
+            Execute(cmd.Trim(), robot, canvas);
+            canvas.Render();
+            Thread.Sleep(200);
+        }
+    }
     public void Execute(string command, WallE robot, PixelCanvas canvas)
     {
         string[] parts = command.Split(new[] { '(', ')', ' ', ',' }, StringSplitOptions.RemoveEmptyEntries);

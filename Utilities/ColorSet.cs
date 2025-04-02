@@ -5,6 +5,7 @@ public class ColorPixels
     {
         ["Red"] = Color.Red,
         ["Blue"] = Color.Blue,
+        ["DarkBlue"] = Color.DarkBlue,
         ["Green"] = Color.Green,
         ["Yellow"] = Color.Yellow,
         ["Orange"] = Color.Orange1,
@@ -15,7 +16,7 @@ public class ColorPixels
     };
     public static Color GetColor(string colorName)
     {
-        if(_colorMap.TryGetValue(colorName, out var color))
+        if (_colorMap.TryGetValue(colorName, out var color))
         {
             System.Console.WriteLine($"setted color {color}");
             Console.ReadKey();

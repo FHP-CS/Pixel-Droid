@@ -4,6 +4,10 @@ var canvas = new PixelCanvas(30, 30);
 var WallE = new WallE();
 var parser = new CommandParser();
 
+var editor = new TextEditor();
+string code = editor.Run(canvas);
+
+
 
 // while (true)
 // {
@@ -22,4 +26,4 @@ var parser = new CommandParser();
 //     }
 // }
 canvas.Render();
-parser.Compiler(WallE, canvas);
+parser.ExecuteBatch(code, WallE, canvas);

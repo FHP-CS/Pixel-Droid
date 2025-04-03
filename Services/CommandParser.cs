@@ -9,7 +9,7 @@ public class CommandParser
         var commands = new List<string>();
         while (true)
         {
-            string input = AnsiConsole.Ask<string>("[grey]" + line + "[/][black]>[/]  ");
+            string input = AnsiConsole.Ask<string>("[grey]" + line + "[/]  [black]>[/]  ");
             if (input.Trim().Equals("run", StringComparison.OrdinalIgnoreCase))// typed run so lets run the orders!
             {
                 ExecuteBatch(string.Join("\n", commands), robot, canvas);
@@ -26,6 +26,7 @@ public class CommandParser
                 line++;
             }
             if (commands.Count == 0) line = 1;
+
         }
     }
     public void ExecuteBatch(string multiCommand, WallE robot, PixelCanvas canvas)

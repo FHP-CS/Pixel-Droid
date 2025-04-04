@@ -72,46 +72,6 @@ public class PixelCanvas
         }
     }
 
-    public void Render()
-    {
-        var table = new Table()
-        .BorderColor(Color.Blue3_1)
-        .Centered();
-        table.AddColumn(new TableColumn("[yellow]Commands:[/]"));
-        table.AddColumn(new TableColumn(Data.ProgramName + $"                       [bold]{Width}[/]x[bold]{Height}[/]").Centered()).Expand();
-        table.AddRow(Data.Commands, _canvas);
-        AnsiConsole.Clear();
-        AnsiConsole.Write(table);
-    }
-    // public void Render()
-    // {
-    //     var table = new Table()
-    //     .BorderColor(Color.Blue3_1)
-    //     .Centered();
-    //     table.AddColumn(new TableColumn("[yellow]Commands:[/]"));
-    //     table.AddColumn(new TableColumn(Data.ProgramName + $"                       [bold]{Width}[/]x[bold]{Height}[/]").Centered()).Expand();
-
-    //     var table2 = new Table()
-    //     .Border(TableBorder.None)
-    //     .HideHeaders();
-    //     for (int x=0; x < Width; x++)
-    //     {
-    //         table2.AddColumn(new TableColumn($"[silver]{x}[/]").Width(3).Centered());
-    //     }
-    //     for (int y = 0; y < Height; y++)
-    //     {
-    //         var row = new List<Text>();
-    //         row.Add(new Text($"[silver]{y}[/]", new Style(Color.Grey)));
-
-    //         for (int x = 0; x < Width; x++)
-    //         {
-    //             row.Add(new Text("■", new Style(_pixels[x,y])));
-    //         }
-    //     }
-    //     table.AddRow(Data.Commands, table2);
-        
-    //     AnsiConsole.Clear();
-    //     AnsiConsole.Write(table);
-    // }
+    
 
 }

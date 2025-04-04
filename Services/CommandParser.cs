@@ -35,7 +35,7 @@ public class CommandParser
         foreach (var cmd in commands)
         {
             Execute(cmd.Trim(), robot, canvas);
-            canvas.Render();
+            Menu.Render(canvas);
             Thread.Sleep(200);
         }
     }
@@ -48,7 +48,6 @@ public class CommandParser
             System.Console.WriteLine($"{parts[i]}");
 
         }
-        Console.ReadKey();
         switch (cmd)
         {
             case "spawn":

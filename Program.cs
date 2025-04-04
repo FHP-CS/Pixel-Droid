@@ -4,8 +4,13 @@ var canvas = new PixelCanvas(30, 30);
 var WallE = new WallE();
 var parser = new CommandParser();
 
-var editor = new TextEditor();
-string code = editor.Run(canvas);
+List<Button> buttons = Button.GetButtons();
+
+while (true)
+{
+    Menu.MainMenu(canvas, WallE, buttons);
+
+}
 
 
 
@@ -25,5 +30,3 @@ string code = editor.Run(canvas);
 //         Console.ReadKey(true);
 //     }
 // }
-canvas.Render();
-parser.ExecuteBatch(code, WallE, canvas);

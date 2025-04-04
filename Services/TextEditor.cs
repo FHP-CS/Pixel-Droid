@@ -5,14 +5,13 @@ public class TextEditor
     public int _currentLine = 0;
     public int _cursorPosition = 0;
 
-    public string Run(PixelCanvas canvas)
+    public string Run()
     {
         _lines.Add(""); //line 0 empty
         ConsoleKeyInfo key;
         do
         {
             AnsiConsole.Clear();
-            canvas.Render();
             RenderEditor();
 
             key = Console.ReadKey(true);
@@ -91,6 +90,6 @@ public class TextEditor
             }
         }
 
-        AnsiConsole.Markup("[grey] Arrows: Navegate   | Enter: new line  | ESC: save[/]");
+        // AnsiConsole.Markup("[grey] Arrows: Navegate   | Enter: new line  | ESC: save[/]");
     }
 }

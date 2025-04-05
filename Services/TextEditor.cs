@@ -92,6 +92,7 @@ public class TextEditor
         }
         var panel2 = new Panel("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
           .BorderColor(Color.Blue);
+          AnsiConsole.Cursor.Hide();
         AnsiConsole.Write(panel2);
         // AnsiConsole.Markup("█━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     }

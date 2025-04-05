@@ -12,8 +12,9 @@ public class Menu
         table.AddColumn(new TableColumn(Data.ProgramName + $"                       [bold]{canvas.Width}[/]x[bold]{canvas.Height}[/]"))
         .Expand()
         .RightAligned();
-        table.AddRow(Data.Commands, canvas._canvas);
+        table.AddRow(Data.Commands, canvas.Render());
         AnsiConsole.Clear();
+        AnsiConsole.Background = Color.Grey23;
         AnsiConsole.Write(table);
     }
     public static Table startTable(PixelCanvas canvas, List<Button> buttons)
@@ -30,7 +31,7 @@ public class Menu
        .AddColumn(new TableColumn(""));
 
         disign(utils, buttons);
-        table.AddRow(utils, canvas._canvas);
+        table.AddRow(utils, canvas.Render());
         return table;
     }
     public static void MainMenu(PixelCanvas canvas, WallE robot, List<Button> buttons)
@@ -111,7 +112,7 @@ public class Menu
                 selection.AddColumn(new TableColumn(b[i]._button));
                 selection.AddColumn(new TableColumn($" {b[i].ShinyInfo}"));
 
-
+ 
 
                 t.AddRow(selection);
 

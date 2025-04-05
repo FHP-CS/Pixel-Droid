@@ -1,16 +1,18 @@
 using Spectre.Console;
+using Spectre.Console.Rendering;
 public class PixelCanvas
 {
-    public Spectre.Console.Canvas _canvas;
     private Color[,] _pixels;
+    public int _baseCellSize;
+
     public int Width { get; set; }
     public int Height { get; set; }
 
-    public PixelCanvas(int width, int height)
+    public PixelCanvas(int width, int height, int baseCellSize = 4)
     {
         Width = width;
         Height = height;
-        _canvas = new Spectre.Console.Canvas(width, height);//display pixels
+        _baseCellSize = Math.Max(2, baseCellSize);//display pixels
         _pixels = new Color[width, height];//data of pixels
         Clear(); //inicialize with white board default
     }
@@ -25,14 +27,43 @@ public class PixelCanvas
         }
     }
 
-
     public void SetPixel(int x, int y, Color color)
     {
-        if (x < 0 || x > Width - 1 || y < 0 || y > Height - 1) return;
-        _pixels[x, y] = color;
-        _canvas.SetPixel(x, y, color);
+        if (x >= 0 && x < Width && y >= 0 && y < Height)
+            _pixels[x, y] = color;
     }
-        public void Resize(int newWidth, int newHeight)
+    public Table Render()
+    {
+        var backgroundGrey = new Style(background: Color.Grey23);
+
+        var table = new Table()
+        .Border(TableBorder.None)
+        .BorderColor(Color.Grey23);
+
+        table.AddColumn(new TableColumn("").RightAligned());//empty first column for coords
+        //Columns
+        for (int x = 0; x < Width; x++)
+        {
+            table.AddColumn(new TableColumn($"{x}").Centered());
+        }
+        //Rows
+        for (int y = 0; y < Height; y++)
+        {
+            var coordYcell = new Text($"{y}", backgroundGrey);
+            var rowCells = new List<IRenderable> { coordYcell };
+
+            for (int x = 0; x < Width; x++)
+            {
+                var pixel = _pixels[x, y] == Color.Default
+                ? new Text("   ", backgroundGrey)
+                : new Text("▇▇", new Style(_pixels[x, y], Color.Grey23));
+                rowCells.Add(pixel);
+            }
+            table.AddRow(rowCells);
+        }
+        return table;
+    }
+    public void Resize(int newWidth, int newHeight)
     {
         var newPixels = new Color[newWidth, newHeight];//Pixel Matrix
         //start the color matrix all white
@@ -58,7 +89,6 @@ public class PixelCanvas
         Height = newHeight;
         Width = newWidth;
         _pixels = newPixels;
-        _canvas = new Spectre.Console.Canvas(newWidth, newHeight);
         Refresh();
     }
     public void Refresh()
@@ -67,11 +97,11 @@ public class PixelCanvas
         {
             for (int x = 0; x < Width; x++)
             {
-                _canvas.SetPixel(x, y, _pixels[x, y]);
+                SetPixel(x, y, _pixels[x, y]);
             }
         }
     }
 
-    
+
 
 }

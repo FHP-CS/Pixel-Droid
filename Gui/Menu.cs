@@ -22,7 +22,7 @@ public class Menu
                 .BorderColor(Color.BlueViolet)
                 .HeavyBorder()
                 .Centered();
-        table.AddColumn(new TableColumn("[yellow]⚙[/]")).Collapse();
+        table.AddColumn(new TableColumn("[#6d16ce]🛠[/] Settings ")).Centered();
         table.AddColumn(new TableColumn(Data.ProgramName + $"                       [bold]{canvas.Width}[/]x[bold]{canvas.Height}[/]").Centered()).Expand();
         var utils = new Table()
        .NoBorder()
@@ -73,6 +73,27 @@ public class Menu
                 }
 
             }
+            if (key.Key == ConsoleKey.UpArrow)
+            {
+                for (int i = 0; i < buttons.Count; i++)
+                {
+
+                    if (i == Button.selectedButton && i == 0)//is in the last one
+                    {
+                        Button.selectedButton = buttons.Count - 1;
+                        break;
+                    }
+                    else if (i == Button.selectedButton)//if is not the last one
+                    {
+
+                        Button.selectedButton--;
+                        break;
+
+                    }
+
+                }
+
+            }
 
         }
     }
@@ -86,9 +107,9 @@ public class Menu
 
             if (i == Button.selectedButton)
             {
-                selection.AddColumn(new TableColumn("[bold purple]>[/]"));
+                selection.AddColumn(new TableColumn("[bold purple]➤[/]"));
                 selection.AddColumn(new TableColumn(b[i]._button));
-                selection.AddColumn(new TableColumn($" {b[i].Info}"));
+                selection.AddColumn(new TableColumn($" {b[i].ShinyInfo}"));
 
 
 
@@ -98,7 +119,7 @@ public class Menu
             else
             {
                 selection.AddColumn(new TableColumn(b[i]._button));
-                selection.AddColumn(new TableColumn($" {b[i].Info}"));
+                selection.AddColumn(new TableColumn($" [#33e3ff]{b[i].Info}[/]"));
 
                 t.AddRow(selection);
             }

@@ -1,18 +1,19 @@
 using Spectre.Console;
 public class TextEditor
 {
-    public List<string> _lines = new List<string>();
+    public static List<string> _lines = new List<string>();
     public int _currentLine = 0;
     public int _cursorPosition = 0;
 
-    public string Run()
+    public string Run(List<string> _lines)
     {
         _lines.Add(""); //line 0 empty
         ConsoleKeyInfo key;
         do
         {
             AnsiConsole.Clear();
-            RenderEditor();
+
+            RenderEditor(_lines);
 
             key = Console.ReadKey(true);
             switch (key.Key)
@@ -68,9 +69,9 @@ public class TextEditor
 
         return string.Join("\n", _lines);
     }
-    private void RenderEditor()
+    private void RenderEditor(List<string> _lines)
     {
-        var panel = new Panel("Code Editor(.pw) [grey](ESC to exit)[/]")
+        var panel = new Panel("━━━━━━━━━━━━━━━━━━Code Editor(.pw) [grey](ESC to exit)[/]━━━━━━━━━━━━━━━━━━")
         .BorderColor(Color.Blue);
         AnsiConsole.Write(panel);
 
@@ -86,10 +87,12 @@ public class TextEditor
             }
             else
             {
-                AnsiConsole.MarkupLine($"{_currentLine} {line}");
+                AnsiConsole.MarkupLine($"{i} {line}");
             }
         }
-
-        // AnsiConsole.Markup("[grey] Arrows: Navegate   | Enter: new line  | ESC: save[/]");
+        var panel2 = new Panel("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+          .BorderColor(Color.Blue);
+        AnsiConsole.Write(panel2);
+        // AnsiConsole.Markup("█━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     }
 }

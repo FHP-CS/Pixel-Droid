@@ -1,0 +1,104 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:avaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+        xmlns:vm="using:Pixel_Wall_E.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="Pixel_Wall_E.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="Pixel_Wall_E"
+        xmlns:local="clr-namespace:Pixel_Wall_E.Models.CanvasModel"
+        Width="1280" Height="768">
+        <!-- MinWidth="800" MinHeight="600" -->
+
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+    <!-- <DockPanel> -->
+        <!-- Barra de herramientas superior -->
+        <!-- <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="5">
+            <Button Content="Load" Click="OnLoadFile" Margin="5"/>
+            <Button Content="Save" Click="OnSaveFile" Margin="5"/>
+            <Button Content="Execute" Click="OnExecuteCode" Margin="5"/> -->
+            <!--Width and Height input -->
+        <!-- </StackPanel> -->
+        <Grid RowDefinitions="Auto, *, Auto">
+            <!-- title bar -->
+            <Grid Grid.Row="0" Background="#1E1537" Height="40" ColumnDefinitions="Auto, Auto, Auto, *, Auto, Auto">
+                <Rectangle Grid.Column="0" Fill="#1E192D" Height="30" Width="75"></Rectangle>
+                <Button Grid.Column="0" Foreground="#888394" Content="Execute"  Margin="5" />
+                <Rectangle Grid.Column="1" Fill="#1E192D" Height="30" Width="55"></Rectangle>
+                <Button Grid.Column="1" Foreground="#888394" Content="Load" Margin="5" />
+                <Rectangle Grid.Column="2" Fill="#1E192D" Height="30" Width="55"></Rectangle>
+                <Button Grid.Column="2" Foreground="#888394" Content="Save" Margin="5" />
+                
+                <StackPanel  VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="3">
+                    <Label FontWeight="Black">PixelDroid DiFabio</Label>
+                </StackPanel>
+
+                <Rectangle Grid.Column="4" Fill="#0B0B0C" Height="35" Width="130"></Rectangle>
+                <StackPanel Grid.Column="4" Orientation="Horizontal" Margin="5">    
+                    <TextBox Foreground="#888394" Background="#1E192D" x:Name="LogicalWidthInput" Width="50" Text="10"/>
+                    <TextBox Foreground="#888394" Background="#1E192D" x:Name="LogicalHeightInput" Width="50" Text="10"/>
+                </StackPanel>
+               
+
+                <Rectangle Grid.Column="5" Fill="#66108A" Height="37" Width="70"></Rectangle>
+                <Button Grid.Column="5" Content="Resize" Click="OnUpdateCanvasClick" Margin="5"/>
+                    
+            </Grid>
+
+
+                <!-- Main Area -->
+            <Grid Grid.Row="1" ColumnDefinitions="Auto, *" Background="#333">
+                <!-- TextEditor -->
+                <Rectangle Grid.Column="0" Fill="DarkViolet" Width="250"></Rectangle>
+
+                
+                <Grid Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" ColumnDefinitions="Auto, *" Background="#D5DCFF">
+                    <Grid Height="700" Width="700" VerticalAlignment="Center" HorizontalAlignment="Center" ColumnDefinitions="Auto,*" RowDefinitions="Auto, *">
+                         <!-- Numeración del Eje X -->
+                         <StackPanel x:Name="XAxisNumbers" Background="Gray" Grid.Column="1" Grid.Row="0" Orientation="Horizontal"  HorizontalAlignment="Stretch" />
+                         <!-- Numeración del Eje Y -->
+                         <StackPanel x:Name="YAxisNumbers" Background="Gray" Grid.Column="0" Grid.Row="1" Orientation="Vertical" VerticalAlignment="Stretch" HorizontalAlignment="Right" />
+                         <!-- Canvas -->
+                         <Border Grid.Column="1" Grid.Row="1" BorderBrush="Black" BorderThickness="1">
+                            <local:FixedCanvas x:Name="PixelCanvasControl"
+                                            Width="650"
+                                            Height="650"
+                                            LogicalWidth="10"
+                                            LogicalHeight="10"
+                                            HorizontalAlignment="Stretch"
+                                            VerticalAlignment="Stretch" />
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Grid>
+            
+        </Grid>
+                <!-- <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                
+                 <StackPanel Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Width="200">
+                    <avaloniaEdit:TextEditor x:Name="CodeEditor"
+                                             ShowLineNumbers="True"
+                                             FontFamily="Cascadia Code, Consolas, Monospace"
+                                             Margin="5"/>
+                    <TextBlock x:Name="ErrorMessageText"
+                               Text=""
+                               Foreground="Red"
+                               Margin="5" />
+                    
+                </StackPanel>
+                
+            </Grid>
+             -->
+</Window>

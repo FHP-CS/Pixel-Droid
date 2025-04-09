@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixelDroid", "PixelDroid.csproj", "{86DDB12D-2EA0-C634-6F07-E2ED950EF81D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pixel Wall-E", "Pixel Wall-E.csproj", "{850C8AFC-A559-97A5-76B2-E9647E7ADE77}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -10,15 +10,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{86DDB12D-2EA0-C634-6F07-E2ED950EF81D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{86DDB12D-2EA0-C634-6F07-E2ED950EF81D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{86DDB12D-2EA0-C634-6F07-E2ED950EF81D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{86DDB12D-2EA0-C634-6F07-E2ED950EF81D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{850C8AFC-A559-97A5-76B2-E9647E7ADE77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{850C8AFC-A559-97A5-76B2-E9647E7ADE77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{850C8AFC-A559-97A5-76B2-E9647E7ADE77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{850C8AFC-A559-97A5-76B2-E9647E7ADE77}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {E5056268-C69C-48E0-8E0D-AC98B313C6D6}
+		SolutionGuid = {6A19EC63-3E17-4585-8F3A-E8DCABFDC024}
 	EndGlobalSection
 EndGlobal

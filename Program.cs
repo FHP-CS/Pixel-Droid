@@ -1,13 +1,21 @@
-﻿
-using Spectre.Console;
-var canvas = new PixelCanvas(30, 30);
-var WallE = new WallE();
-var parser = new CommandParser();
+﻿using Avalonia;
+using System;
 
-List<Button> buttons = Button.GetButtons();
+namespace Pixel_Wall_E;
 
-while (true)
+sealed class Program
 {
-    Menu.MainMenu(canvas, WallE, buttons);
+    // Initialization code. Don't use any Avalonia, third-party APIs or any
+    // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
+    // yet and stuff might break.
+    [STAThread]
+    public static void Main(string[] args) => BuildAvaloniaApp()
+        .StartWithClassicDesktopLifetime(args);
 
+    // Avalonia configuration, don't remove; also used by visual designer.
+    public static AppBuilder BuildAvaloniaApp()
+        => AppBuilder.Configure<App>()
+            .UsePlatformDetect()
+            .WithInterFont()
+            .LogToTrace();
 }

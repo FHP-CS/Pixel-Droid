@@ -70,7 +70,7 @@ namespace Pixel_Droid.Views
         {
             const int baseLogicalSize = 10; // Tamaño de referencia
             const double baseFontSize = 14; // Tamaño base para 10x10
-            const double minFontSize = 8; // Mínimo tamaño legible
+            const double minFontSize = 6; // Mínimo tamaño legible
 
             // Calcular factor de escalado basado en el tamaño lógico
             double scaleFactor = baseLogicalSize / Math.Max(PixelCanvasControl.LogicalWidth, PixelCanvasControl.LogicalHeight);
@@ -86,8 +86,8 @@ namespace Pixel_Droid.Views
 
             Dispatcher.UIThread.InvokeAsync(() =>
         {
-            double cellWidth = 650.0 / PixelCanvasControl.LogicalWidth;
-            double cellHeight = 650.0 / PixelCanvasControl.LogicalHeight;
+            double cellWidth = 660.0 / PixelCanvasControl.LogicalWidth;
+            double cellHeight = 670.0 / PixelCanvasControl.LogicalHeight;
 
             // Eje X (superior)
             for (int i = 0; i < PixelCanvasControl.LogicalWidth; i++)
@@ -108,6 +108,7 @@ namespace Pixel_Droid.Views
                 {
                     Text = i.ToString(),
                     Height = cellHeight,
+                    Width = 15,
                     FontSize = fontSize, // Tamaño dinámico
                     TextAlignment = TextAlignment.Right
                 });

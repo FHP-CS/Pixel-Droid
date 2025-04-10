@@ -41,25 +41,27 @@
                 <Button Grid.Column="5" Content="Resize" Click="OnUpdateCanvasClick" Margin="5"/>
               </Grid>
               <Grid Grid.Row="1" Background="#333"></Grid>
-              <Rectangle Grid.Column="0" Grid.Row="1" Fill="#6C358F" Width="500"></Rectangle>
+              <!-- Console -->
+              <Rectangle Grid.Column="0" Grid.Row="1" Fill="#221F29" Width="500"></Rectangle>
            </Grid>
             <Grid Grid.Column="1" ColumnDefinitions="Auto, *" Background="#333">
 
                 <Grid Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" ColumnDefinitions="Auto, *" Background="#D5DCFF">
-                    <Grid Height="680" Width="680" VerticalAlignment="Center" HorizontalAlignment="Center" ColumnDefinitions="Auto,*" RowDefinitions="Auto, *">
+                    <Grid  VerticalAlignment="Center" HorizontalAlignment="Center" ColumnDefinitions="Auto,*" RowDefinitions="Auto, *">
                          <!-- Numeración del Eje X -->
-                         <StackPanel x:Name="XAxisNumbers" Background="Gray" Grid.Column="1" Grid.Row="0" Orientation="Horizontal"  HorizontalAlignment="Stretch" />
+                         <Grid Grid.Column="0" Grid.Row="0" Background="#615285"></Grid>
+                         <StackPanel x:Name="XAxisNumbers" Background="#615285" Grid.Column="1" Grid.Row="0" Orientation="Horizontal"  HorizontalAlignment="Stretch" />
                          <!-- Numeración del Eje Y -->
-                         <StackPanel x:Name="YAxisNumbers" Background="Gray" Grid.Column="0" Grid.Row="1" Orientation="Vertical" VerticalAlignment="Stretch" HorizontalAlignment="Right" />
+                         <StackPanel x:Name="YAxisNumbers" Background="#615285" Grid.Column="0" Grid.Row="1" Orientation="Vertical" VerticalAlignment="Stretch" HorizontalAlignment="Right" />
                          <!-- Canvas -->
                          <Border Grid.Column="1" Grid.Row="1" BorderBrush="Black" BorderThickness="1">
                             <local:FixedCanvas x:Name="PixelCanvasControl"
-                                            Width="650"
-                                            Height="650"
+                                            Width="670"
+                                            Height="660"
                                             LogicalWidth="10"
                                             LogicalHeight="10"
-                                            HorizontalAlignment="Stretch"
-                                            VerticalAlignment="Stretch" />
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Top" />
                         </Border>
                     </Grid>
                 </Grid>

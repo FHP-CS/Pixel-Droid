@@ -23,41 +23,31 @@
             <Button Content="Execute" Click="OnExecuteCode" Margin="5"/> -->
             <!--Width and Height input -->
         <!-- </StackPanel> -->
-        <Grid RowDefinitions="Auto, *, Auto">
+        <Grid ColumnDefinitions="Auto, *, Auto">
             <!-- title bar -->
-            <Grid Grid.Row="0" Background="#1E1537" Height="40" ColumnDefinitions="Auto, Auto, Auto, *, Auto, Auto">
+           <Grid Grid.Column="0" ColumnDefinitions="Auto, *, Auto" RowDefinitions="Auto, *, Auto">
+              <Grid Grid.Row="0" Grid.Column="0" Background="#1E1537" Height="40" ColumnDefinitions="Auto, Auto, Auto">
                 <Rectangle Grid.Column="0" Fill="#1E192D" Height="30" Width="75"></Rectangle>
                 <Button Grid.Column="0" Foreground="#888394" Content="Execute"  Margin="5" />
                 <Rectangle Grid.Column="1" Fill="#1E192D" Height="30" Width="55"></Rectangle>
                 <Button Grid.Column="1" Foreground="#888394" Content="Load" Margin="5" />
                 <Rectangle Grid.Column="2" Fill="#1E192D" Height="30" Width="55"></Rectangle>
                 <Button Grid.Column="2" Foreground="#888394" Content="Save" Margin="5" />
-                
+              </Grid>
+              <Rectangle Grid.Column="0" Grid.Row="1" Fill="#6C358F" Width="300"></Rectangle>
+           </Grid>
+            <!-- <Grid Grid.Column="1" Grid.Row="0" Background="DarkGray" Height="20" VerticalAlignment="Top" RowDefinitions="Auto, *, Auto">
                 <StackPanel  VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="3">
-                    <Label FontWeight="Black">PixelDroid DiFabio</Label>
+                    <Label>PixelDroid DiFabio</Label>
                 </StackPanel>
-
-                <Rectangle Grid.Column="4" Fill="#0B0B0C" Height="35" Width="130"></Rectangle>
-                <StackPanel Grid.Column="4" Orientation="Horizontal" Margin="5">    
-                    <TextBox Foreground="#888394" Background="#1E192D" x:Name="LogicalWidthInput" Width="50" Text="10"/>
-                    <TextBox Foreground="#888394" Background="#1E192D" x:Name="LogicalHeightInput" Width="50" Text="10"/>
-                </StackPanel>
-               
-
-                <Rectangle Grid.Column="5" Fill="#66108A" Height="37" Width="70"></Rectangle>
-                <Button Grid.Column="5" Content="Resize" Click="OnUpdateCanvasClick" Margin="5"/>
-                    
-            </Grid>
-
-
-                <!-- Main Area -->
-            <Grid Grid.Row="1" ColumnDefinitions="Auto, *" Background="#333">
+            </Grid> -->
+                 <!-- Main Area -->
+            <Grid Grid.Column="1" ColumnDefinitions="Auto, *" Background="#333">
                 <!-- TextEditor -->
-                <Rectangle Grid.Column="0" Fill="DarkViolet" Width="250"></Rectangle>
 
                 
                 <Grid Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" ColumnDefinitions="Auto, *" Background="#D5DCFF">
-                    <Grid Height="700" Width="700" VerticalAlignment="Center" HorizontalAlignment="Center" ColumnDefinitions="Auto,*" RowDefinitions="Auto, *">
+                    <Grid Height="680" Width="660" VerticalAlignment="Center" HorizontalAlignment="Center" ColumnDefinitions="Auto,*" RowDefinitions="Auto, *">
                          <!-- Numeración del Eje X -->
                          <StackPanel x:Name="XAxisNumbers" Background="Gray" Grid.Column="1" Grid.Row="0" Orientation="Horizontal"  HorizontalAlignment="Stretch" />
                          <!-- Numeración del Eje Y -->
@@ -75,7 +65,17 @@
                     </Grid>
                 </Grid>
             </Grid>
-            
+            <Grid Grid.Column="2" ColumnDefinitions="Auto" RowDefinitions="Auto, *, Auto">
+              <Grid Grid.Column="0" Grid.Row="0" Background="#0B0B0C" Height="40" Width="220" ColumnDefinitions="Auto, Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="5">    
+                    <TextBox Foreground="#888394" Background="#1E192D" x:Name="LogicalWidthInput" Width="50" Text="10"/>
+                    <TextBox Foreground="#888394" Background="#1E192D" x:Name="LogicalHeightInput" Width="50" Text="10"/>
+                </StackPanel>
+                <Rectangle Grid.Column="1" Fill="#66108A" Height="37" Width="70"></Rectangle>
+                <Button Grid.Column="1" Content="Resize" Click="OnUpdateCanvasClick" Margin="5"/>
+                    
+              </Grid>
+            </Grid>
         </Grid>
                 <!-- <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />

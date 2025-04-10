@@ -82,8 +82,8 @@ public partial class MainWindow : Window
 
         Dispatcher.UIThread.InvokeAsync(() =>
     {
-        double cellWidth = 670.0 / PixelCanvasControl.LogicalWidth;
-        double cellHeight = 670.0 / PixelCanvasControl.LogicalHeight;
+        double cellWidth = 650.0 / PixelCanvasControl.LogicalWidth;
+        double cellHeight = 650.0 / PixelCanvasControl.LogicalHeight;
 
         // Eje X (superior)
         for (int i = 0; i < PixelCanvasControl.LogicalWidth; i++)

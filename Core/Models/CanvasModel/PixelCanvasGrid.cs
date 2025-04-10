@@ -1,7 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Media;
 using System;
-namespace Pixel_Wall_E.Models.CanvasModel
+namespace Pixel_Droid.Models.CanvasModel
 {
     public class PixelCanvasGrid
     {

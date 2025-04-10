@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace Pixel_Wall_E.ViewModels;
+namespace Pixel_Droid.ViewModels;
 
 public class ViewModelBase : ObservableObject
 {

@@ -1,9 +1,9 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using Pixel_Wall_E.ViewModels;
+using Pixel_Droid.ViewModels;
 
-namespace Pixel_Wall_E;
+namespace Pixel_Droid;
 
 public class ViewLocator : IDataTemplate
 {

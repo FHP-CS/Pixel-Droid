@@ -4,10 +4,10 @@ using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using System.Linq;
 using Avalonia.Markup.Xaml;
-using Pixel_Wall_E.ViewModels;
-using Pixel_Wall_E.Views;
+using Pixel_Droid.ViewModels;
+using Pixel_Droid.Views;
 
-namespace Pixel_Wall_E;
+namespace Pixel_Droid;
 
 public partial class App : Application
 {

@@ -4,6 +4,11 @@ VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pixel-Droid", "Pixel-Droid.csproj", "{761CAB76-439E-E7F6-AA39-3F327712339D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{6C4D298B-81FB-2B6B-5AB6-46205EDDC72C}"
+	ProjectSection(SolutionItems) = preProject
+		c:\Users\Maria Antonia\Downloads\Microsoft.PackageManagement.NuGetProvider-2.8.5.208.dll = c:\Users\Maria Antonia\Downloads\Microsoft.PackageManagement.NuGetProvider-2.8.5.208.dll
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

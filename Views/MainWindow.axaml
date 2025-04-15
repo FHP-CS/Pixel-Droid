@@ -9,7 +9,7 @@
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="Pixel_Droid"
-        xmlns:local="clr-namespace:Pixel_Droid.Models.CanvasModel"
+        xmlns:local="clr-namespace:PixelDroid"
         Width="1280" Height="768">
         <!-- MinWidth="800" MinHeight="600" -->
 
@@ -34,8 +34,8 @@
                 <Rectangle Grid.Column="2" Fill="#1E192D" Height="30" Width="55"></Rectangle>
                 <Button Grid.Column="2" Foreground="#888394" Content="Save" Margin="5" />
                 <StackPanel Grid.Column="4" Orientation="Horizontal" Margin="5">    
-                    <TextBox Foreground="#888394" Background="#1E192D" x:Name="LogicalWidthInput" Width="50" Text="10"/>
-                    <TextBox Foreground="#888394" Background="#1E192D" x:Name="LogicalHeightInput" Width="50" Text="10"/>
+                    <TextBox Foreground="#888394" Background="#1E192D" x:Name="CanvasWidthInput" Width="50" Text="10"/>
+                    <TextBox Foreground="#888394" Background="#1E192D" x:Name="CanvasHeightInput" Width="50" Text="10"/>
                 </StackPanel>
                 <Rectangle Grid.Column="5" Fill="#66108A" Height="37" Width="70"></Rectangle>
                 <Button Grid.Column="5" Content="Resize" Click="OnUpdateCanvasClick" Margin="5"/>
@@ -43,6 +43,8 @@
               <Grid Grid.Row="1" Background="#333"></Grid>
               <!-- Console -->
               <Rectangle Grid.Column="0" Grid.Row="1" Fill="#221F29" Width="500"></Rectangle>
+              <TextBox x:Name="CodeEditorTextBox" AcceptsReturn="True" TextWrapping="Wrap"  />
+
            </Grid>
             <Grid Grid.Column="1" ColumnDefinitions="Auto, *" Background="#333">
 
@@ -55,11 +57,11 @@
                          <StackPanel x:Name="YAxisNumbers" Background="#615285" Grid.Column="0" Grid.Row="1" Orientation="Vertical" VerticalAlignment="Stretch" HorizontalAlignment="Right" />
                          <!-- Canvas -->
                          <Border Grid.Column="1" Grid.Row="1" BorderBrush="Black" BorderThickness="1">
-                            <local:FixedCanvas x:Name="PixelCanvasControl"
+                            <local:PixelCanvas x:Name="MyCanvas"
                                             Width="670"
                                             Height="660"
-                                            LogicalWidth="10"
-                                            LogicalHeight="10"
+                                            CanvasWidth="10"
+                                            CanvasHeight="10"
                                             HorizontalAlignment="Left"
                                             VerticalAlignment="Top" />
                         </Border>

@@ -17,8 +17,10 @@ using Avalonia.Threading;
 namespace Pixel_Droid.Views
 {
 
+    
     public partial class MainWindow : Window
     {
+        WallE WallE = new WallE();
         public MainWindow()
         {
             InitializeComponent();
@@ -28,23 +30,30 @@ namespace Pixel_Droid.Views
             this.AttachDevTools();
 #endif
         }
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Inicializar el PixelCanvas con las dimensiones deseadas
+            MyCanvas.InitializeCanvas(50, 50); // Ejemplo: canvas de 50x50 píxeles
+        }
+        // Helper method to convert a string to a Color
+
         private void OnUpdateCanvasClick(object sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
-            if (int.TryParse(LogicalWidthInput.Text, out int logicalWidth) &&
-                int.TryParse(LogicalHeightInput.Text, out int logicalHeight) &&
-                logicalWidth > 0 && logicalHeight > 0)
+            if (int.TryParse(CanvasWidthInput.Text, out int canvasWidth) &&
+                int.TryParse(CanvasHeightInput.Text, out int canvasHeight) &&
+                canvasWidth > 0 && canvasHeight > 0)
             {
-                PixelCanvasControl.LogicalWidth = logicalWidth;
-                PixelCanvasControl.LogicalHeight = logicalHeight;
+                MyCanvas.CanvasWidth = canvasWidth;
+                MyCanvas.CanvasHeight = canvasHeight;
 
                 // Forzar redibujado del canvas
-                PixelCanvasControl.InvalidateVisual();
+                MyCanvas.InvalidateVisual();
                 GenerateAxisNumbers();
             }
         }
         // private void InitializePixelCanvas()
         // {
-        //     _pixelCanvas = new PixelCanvas(PixelCanvasControl, _canvasWidth, _canvasHeight);
+        //     _pixelCanvas = new PixelCanvas(MyCanvas, CanvasWidth, CanvasHeight);
         // }
         private void OnLoadFile(object sender, RoutedEventArgs e)
         {
@@ -56,11 +65,11 @@ namespace Pixel_Droid.Views
         // {
         //     if (int.TryParse(CanvasWidthInput.Text, out var newWidth) && int.TryParse(CanvasHeigthInput.Text, out var newHeight) && newWidth > 0 && newHeight > 0)
         //     {
-        //         _canvasWidth = newWidth;
-        //         _canvasHeight = newHeight;
+        //         CanvasWidth = newWidth;
+        //         CanvasHeight = newHeight;
 
-        //         PixelCanvasControl.CanvasWidth = newWidth;
-        //         PixelCanvasControl.CanvasHeight = newHeight;
+        //         MyCanvas.CanvasWidth = newWidth;
+        //         MyCanvas.CanvasHeight = newHeight;
 
         //         InitializePixelCanvas();
         //         UpdateCanvasScale();
@@ -73,7 +82,7 @@ namespace Pixel_Droid.Views
             const double minFontSize = 6; // Mínimo tamaño legible
 
             // Calcular factor de escalado basado en el tamaño lógico
-            double scaleFactor = baseLogicalSize / Math.Max(PixelCanvasControl.LogicalWidth, PixelCanvasControl.LogicalHeight);
+            double scaleFactor = baseLogicalSize / Math.Max(MyCanvas.CanvasWidth, MyCanvas.CanvasHeight);
 
             // Aplicar escala y ajustar límites
             return Math.Max(minFontSize, baseFontSize * scaleFactor);
@@ -86,11 +95,11 @@ namespace Pixel_Droid.Views
 
             Dispatcher.UIThread.InvokeAsync(() =>
         {
-            double cellWidth = 660.0 / PixelCanvasControl.LogicalWidth;
-            double cellHeight = 670.0 / PixelCanvasControl.LogicalHeight;
+            double cellWidth = 660.0 / MyCanvas.CanvasWidth;
+            double cellHeight = 670.0 / MyCanvas.CanvasHeight;
 
             // Eje X (superior)
-            for (int i = 0; i < PixelCanvasControl.LogicalWidth; i++)
+            for (int i = 0; i < MyCanvas.CanvasWidth; i++)
             {
                 XAxisNumbers.Children.Add(new TextBlock
                 {
@@ -102,7 +111,7 @@ namespace Pixel_Droid.Views
             }
 
             // Eje Y (izquierdo)
-            for (int i = PixelCanvasControl.LogicalHeight - 1; i >= 0; i--)
+            for (int i = MyCanvas.CanvasHeight - 1; i >= 0; i--)
             {
                 YAxisNumbers.Children.Insert(0, new TextBlock
                 {
@@ -131,21 +140,46 @@ namespace Pixel_Droid.Views
         //         }
         //     }
         // }
-        private void ProcessCommand(string command)
+        public void ExecuteCommand(string command, string[] arguments)
         {
-            // var canvasWidth = _pixelCanvas.GetCanvasWidth();
-            // var canvasHeight = _pixelCanvas.GetCanvasHeight();
-            // if (command.StartsWith("Spawn"))
-            // {
-            //     var args = ExtractArguments(command);
+            switch (command)
+            {
+                case "Spawn":
+                 int limitX = MyCanvas.CanvasWidth;
+                 int limitY = MyCanvas.CanvasHeight;
 
-            //     var x = int.Parse(args[0]);
-            //     var y = int.Parse(args[1]);
+                 int x = int.Parse(arguments[0]);
+                 int y = int.Parse(arguments[1]);
+                 if(x < 0 || x >= limitX || y < 0 || y >= limitY) return;
 
-            //     if (x < 0 || x >= canvasWidth || y < 0 || y >= canvasHeight) throw new Exception("Wall-E out of the limits.");
-            //     _pixelCanvas.DrawPixel(x, y, "Black", 1);
-            // }
+                    WallE.X = int.Parse(arguments[0]);
+                    WallE.Y = int.Parse(arguments[1]);
+                    // Asegúrate de validar si las coordenadas están dentro del canvas
+                    break;
+                case "Color":
+                    WallE.SetBrushColor(arguments[0]);
+                    break;
+                case "Size":
+                    WallE.SetBrushSize(int.Parse(arguments[0]));
+                    break;
+                case "DrawLine":
+                    int dirX = int.Parse(arguments[0]);
+                    int dirY = int.Parse(arguments[1]);
+                    if(dirX != 0 && dirX != 1 && dirX != -1) return;
+                    if(dirY != 0 && dirY != 1 && dirY != -1) return;
+                    int distance = int.Parse(arguments[2]);
 
+                    int x1 = WallE.X + (dirX * distance);
+                    int y1 = WallE.Y + (dirY * distance);
+
+                    MyCanvas.DrawLine(WallE.X, WallE.Y, x1, y1, WallE.BrushColor , WallE.BrushSize);
+
+                    // Actualizar la posición de Wall-E
+                    WallE.X = x1;
+                    WallE.Y = y1;
+                    break;
+                // ... (Otros comandos)
+            }
         }
         private string[] ExtractArguments(string command)
         {

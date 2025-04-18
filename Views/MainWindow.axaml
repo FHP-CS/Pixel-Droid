@@ -1,96 +1,65 @@
+<!-- Views/MainWindow.axaml -->
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:avaloniaEdit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
-        xmlns:vm="using:Pixel_Droid.ViewModels"
+        xmlns:vm="using:PixelWallE.ViewModels"  
+        xmlns:ctrl="using:PixelWallE.Controls"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="Pixel_Droid.Views.MainWindow"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+        x:Class="PixelWallE.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
-        Title="Pixel_Droid"
-        xmlns:local="clr-namespace:PixelDroid"
-        Width="1280" Height="768">
-        <!-- MinWidth="800" MinHeight="600" -->
+        Title="Pixel Wall-E">
 
+    <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-    <!-- <DockPanel> -->
-        <!-- Barra de herramientas superior -->
-        <!-- <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="5">
-            <Button Content="Load" Click="OnLoadFile" Margin="5"/>
-            <Button Content="Save" Click="OnSaveFile" Margin="5"/>
-            <Button Content="Execute" Click="OnExecuteCode" Margin="5"/> -->
-            <!--Width and Height input -->
-        <!-- </StackPanel> -->
-        <Grid ColumnDefinitions="Auto, *">
-            <!-- title bar -->
-           <Grid Grid.Column="0" ColumnDefinitions="Auto, *" RowDefinitions="Auto, *">
-              <Grid Grid.Row="0" Grid.Column="0" Background="#1E1537" Height="40" ColumnDefinitions="Auto, Auto, Auto, *, Auto, Auto">
-                <Rectangle Grid.Column="0" Fill="#1E192D" Height="30" Width="75"></Rectangle>
-                <Button Grid.Column="0" Foreground="#888394" Content="Execute"  Margin="5" />
-                <Rectangle Grid.Column="1" Fill="#1E192D" Height="30" Width="55"></Rectangle>
-                <Button Grid.Column="1" Foreground="#888394" Content="Load" Margin="5" />
-                <Rectangle Grid.Column="2" Fill="#1E192D" Height="30" Width="55"></Rectangle>
-                <Button Grid.Column="2" Foreground="#888394" Content="Save" Margin="5" />
-                <StackPanel Grid.Column="4" Orientation="Horizontal" Margin="5">    
-                    <TextBox Foreground="#888394" Background="#1E192D" x:Name="CanvasWidthInput" Width="50" Text="10"/>
-                    <TextBox Foreground="#888394" Background="#1E192D" x:Name="CanvasHeightInput" Width="50" Text="10"/>
-                </StackPanel>
-                <Rectangle Grid.Column="5" Fill="#66108A" Height="37" Width="70"></Rectangle>
-                <Button Grid.Column="5" Content="Resize" Click="OnUpdateCanvasClick" Margin="5"/>
-              </Grid>
-              <Grid Grid.Row="1" Background="#333"></Grid>
-              <!-- Console -->
-              <Rectangle Grid.Column="0" Grid.Row="1" Fill="#221F29" Width="500"></Rectangle>
-              <TextBox x:Name="CodeEditorTextBox" AcceptsReturn="True" TextWrapping="Wrap"  />
+             to set the actual DataContext please modify the App.axaml.cs file. -->
+        <vm:MainWindowViewModel />
+    </Design.DataContext>
 
-           </Grid>
-            <Grid Grid.Column="1" ColumnDefinitions="Auto, *" Background="#333">
+    <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,*,Auto" Margin="10">
 
-                <Grid Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Center" ColumnDefinitions="Auto, *" Background="#D5DCFF">
-                    <Grid  VerticalAlignment="Center" HorizontalAlignment="Center" ColumnDefinitions="Auto,*" RowDefinitions="Auto, *">
-                         <!-- Numeración del Eje X -->
-                         <Grid Grid.Column="0" Grid.Row="0" Background="#615285"></Grid>
-                         <StackPanel x:Name="XAxisNumbers" Background="#615285" Grid.Column="1" Grid.Row="0" Orientation="Horizontal"  HorizontalAlignment="Stretch" />
-                         <!-- Numeración del Eje Y -->
-                         <StackPanel x:Name="YAxisNumbers" Background="#615285" Grid.Column="0" Grid.Row="1" Orientation="Vertical" VerticalAlignment="Stretch" HorizontalAlignment="Right" />
-                         <!-- Canvas -->
-                         <Border Grid.Column="1" Grid.Row="1" BorderBrush="Black" BorderThickness="1">
-                            <local:PixelCanvas x:Name="MyCanvas"
-                                            Width="670"
-                                            Height="660"
-                                            CanvasWidth="10"
-                                            CanvasHeight="10"
-                                            HorizontalAlignment="Left"
-                                            VerticalAlignment="Top" />
-                        </Border>
-                    </Grid>
-                </Grid>
-            </Grid>
-        </Grid>
-                <!-- <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                
-                 <StackPanel Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Width="200">
-                    <avaloniaEdit:TextEditor x:Name="CodeEditor"
-                                             ShowLineNumbers="True"
-                                             FontFamily="Cascadia Code, Consolas, Monospace"
-                                             Margin="5"/>
-                    <TextBlock x:Name="ErrorMessageText"
-                               Text=""
-                               Foreground="Red"
-                               Margin="5" />
-                    
-                </StackPanel>
-                
-            </Grid>
-             -->
+        <!-- Top Panel: Controls -->
+        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" Spacing="10" Margin="0,0,0,10">
+            <Button Content="Execute Code" Command="{Binding ExecuteCodeCommand}"/>
+             <!-- Add Load/Save later -->
+            <TextBlock Text="Canvas Size:" VerticalAlignment="Center"/>
+            <NumericUpDown Value="{Binding CanvasSize}" Minimum="8" Maximum="512" Increment="1" Width="120"/>
+            <Button Content="Resize Canvas" Command="{Binding ApplyResizeCommand}"/>
+            <!-- Temporary Test Button -->
+            <Button Content="Run Test Sequence" Command="{Binding RunTestSequenceCommand}" IsVisible="False"/> <!-- Hide test btn later -->
+        </StackPanel>
+
+
+        <!-- Left Panel: Text Editor (Basic for now) -->
+        <TextBox Grid.Row="1" Grid.Column="0"
+                 Text="{Binding CodeText}"
+                 AcceptsReturn="True"
+                 AcceptsTab="True" 
+                 FontFamily="Consolas,Monospace"
+                 Watermark="Enter Wall-E Code Here..."
+                 MinWidth="250"
+                 Margin="0,0,10,0"/>
+
+        <!-- Center Panel: Canvas -->
+        <Border Grid.Row="1" Grid.Column="1"
+                BorderBrush="Gray" BorderThickness="1"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Background="White"> <!-- Add this background -->
+            <!-- Bind the custom control's CanvasData to the ViewModel's property -->
+            <ctrl:PixelCanvasControl CanvasData="{Binding PixelCanvas}" />
+        </Border>
+
+        <!-- Right Panel: Maybe Info/Output later -->
+         <TextBlock Grid.Row="1" Grid.Column="2" Text="Output/Info" Foreground="Gray" IsVisible="False"/>
+
+        <!-- Bottom Status Bar (using Border and TextBlock) -->
+        <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
+                BorderBrush="LightGray" BorderThickness="0,1,0,0" 
+                Padding="5,3" Margin="0,10,0,0" Background="WhiteSmoke"> <!-- Basic styling -->
+            <TextBlock Text="Ready" VerticalAlignment="Center"/>
+             <!-- You can add more TextBlocks or other controls here later, maybe in a StackPanel -->
+        </Border>
+
+    </Grid>
 </Window>

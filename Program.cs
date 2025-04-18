@@ -1,7 +1,7 @@
 ﻿using Avalonia;
 using System;
 
-namespace Pixel_Droid;
+namespace PixelWallE;
 
 sealed class Program
 {

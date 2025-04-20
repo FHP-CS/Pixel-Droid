@@ -17,18 +17,20 @@
         <vm:MainWindowViewModel />
     </Design.DataContext>
 
-    <Grid ColumnDefinitions="Auto,*,Auto" Background="#141720" RowDefinitions="Auto,*,Auto" Margin="10">
+    <Grid ColumnDefinitions="Auto,*,Auto" Background="{DynamicResource ResourceKey=PrimaryBackgroundGradient}" RowDefinitions="Auto,*,Auto" Margin="10">
 
         <!-- Top Panel: Controls -->
         <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" Spacing="10" Margin="0,0,0,10">
-            <Button Content="Execute Code" Background="#596589" Command="{Binding ExecuteCodeCommand}"/>
+            <Button Content="Execute Code" Background="{DynamicResource ResourceKey=ButtonGradient}" Command="{Binding ExecuteCodeCommand}"/>
              <!-- Add Load/Save later -->
-            <TextBlock Text="Canvas Size:" VerticalAlignment="Center"/>
-            <NumericUpDown Value="{Binding CanvasSize}" Minimum="8" Maximum="512" Increment="1" Width="120"/>
-            <Button Content="Resize Canvas" Background="#596589" Command="{Binding ApplyResizeCommand}"/>
             <!-- Temporary Test Button -->
             <Button  Content="Run Test Sequence" Command="{Binding RunTestSequenceCommand}" IsVisible="False"/> <!-- Hide test btn later -->
         </StackPanel>
+        <StackPanel Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" HorizontalAlignment="Right" Orientation="Horizontal" Spacing="10" Margin="0,0,0,10">
+            <TextBlock Text="Canvas Size:" VerticalAlignment="Center"/>
+            <NumericUpDown Value="{Binding CanvasSize}" Minimum="8" Maximum="512" Increment="1" Width="120"/>
+            <Button Content="Resize Canvas" Background="{DynamicResource ResourceKey=ButtonGradient}" Command="{Binding ApplyResizeCommand}"/>
+        </StackPanel> 
 
 
         <!-- Left Panel: Text Editor (Basic for now) -->
@@ -43,7 +45,7 @@
 
         <!-- Center Panel: Canvas -->
         <Border Grid.Row="1" Grid.Column="1"
-                BorderBrush="Gray" BorderThickness="1"
+                BorderBrush="#242424" BorderThickness="1"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Background="White"> <!-- Add this background -->
             <!-- Bind the custom control's CanvasData to the ViewModel's property -->

@@ -2,7 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="PixelWallE.App"
              xmlns:local="using:PixelWallE"
-             RequestedThemeVariant="Default">
+             RequestedThemeVariant="Dark">
              <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
     <Application.DataTemplates>
@@ -11,5 +11,18 @@
   
     <Application.Styles>
         <FluentTheme />
+        <StyleInclude Source="Styles/AppDefaultStyles.axaml"></StyleInclude>
     </Application.Styles>
+
+    <Application.Resources>
+        <SolidColorBrush x:Key="PrimaryBackground">#141720</SolidColorBrush>
+        <LinearGradientBrush x:Key="PrimaryBackgroundGradient" StartPoint="0%, 0%" EndPoint="100%, 0%">
+            <GradientStop Offset="0" Color="#111214"></GradientStop>
+            <GradientStop Offset="1" Color="#151E3E"></GradientStop> 
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="ButtonGradient" StartPoint="0%, 0%" EndPoint="100%, 100%">
+            <GradientStop Offset="0" Color="#b100c4"></GradientStop>
+            <GradientStop Offset="1" Color="#e600ff"></GradientStop> 
+        </LinearGradientBrush>
+    </Application.Resources>
 </Application>

@@ -1,9 +1,17 @@
-﻿using Avalonia.Media; // Required for Colors
+﻿using System.Collections.Generic;
+using System.Linq;
+using Avalonia.Media; // Required for Colors
 using CommunityToolkit.Mvvm.ComponentModel; // Required for ObservableObject and ObservableProperty
 using CommunityToolkit.Mvvm.Input;          // Required for RelayCommand
 using PixelWallE.Models; // Your models namespace
 using System.Diagnostics;
 using System.Threading.Tasks;
+
+using PixelWallE.Parser;
+using PixelWallE.Runtime;
+using PixelWallE.Runtime.Commands;
+using PixelWallE.Common;
+using System.Text;
 
 namespace PixelWallE.ViewModels;
 
@@ -104,28 +112,108 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void ApplyResize()
     {
-        StatusText = "Applying resize..."; // Update status
-        Debug.WriteLine($"Resizing canvas to {CanvasSize}x{CanvasSize}");
-        if (CanvasSize < 1) CanvasSize = 1;
+        // ... (existing resize logic) ...
         PixelCanvas = new PixelCanvas(CanvasSize, CanvasSize);
+        // CRUCIAL: Create a NEW WallE instance tied to the NEW canvas
         _wallE = new WallE(PixelCanvas);
         UpdateWallEPosition();
-        StatusText = $"Canvas resized to {CanvasSize}x{CanvasSize}. Ready."; // Update status
+        StatusText = $"Canvas resized to {CanvasSize}x{CanvasSize}. Wall-E reset. Ready.";
+    }
+    // Helper method to update status and debug output with errors
+    private void ReportErrors(string phase, List<ParsingError> errors)
+    {
+        var errorReport = new StringBuilder();
+        errorReport.AppendLine($"{phase}:");
+        foreach (var error in errors)
+        {
+            errorReport.AppendLine($"- {error}");
+            Debug.WriteLine(error.ToString());
+        }
+        StatusText = errorReport.ToString().Trim(); // Show errors in status bar
     }
 
     [RelayCommand]
     private void ExecuteCode()
     {
-        StatusText = "Executing code (Placeholder)..."; // Update status
-        Debug.WriteLine($"--- Execute Code button pressed ---");
-        Debug.WriteLine("ExecuteCode: Running test sequence as placeholder.");
+        StatusText = "Compiling...";
+        Debug.WriteLine("--- Starting Code Execution ---");
+        Debug.WriteLine("Code:\n" + CodeText);
 
-        // --- TEMPORARY: Call the test sequence ---
-        RunTestSequence(); // This will update the status again upon completion/error
-        // --- END TEMPORARY ---
+        // 1. Lexing
+        var lexer = new Lexer(CodeText);
+        (List<Token> tokens, List<ParsingError> lexerErrors) = lexer.Tokenize();
 
-        // When you implement the real parser, update StatusText based on parsing/runtime errors or success.
-        // e.g., StatusText = "Code executed successfully.";
-        // e.g., StatusText = $"Error on line {lineNumber}: Invalid command.";
+        if (lexerErrors.Any())
+        {
+            ReportErrors("Lexer Error(s)", lexerErrors);
+            return; // Stop if lexing failed
+        }
+
+        Debug.WriteLine("--- Lexing Successful ---");
+        // foreach (var token in tokens) Debug.WriteLine(token); // Optional: Print tokens
+
+        // 2. Parsing
+        var parser = new Parser.Parser(tokens); // Fully qualify if namespace conflict
+        (List<ICommand> commands, List<ParsingError> parserErrors) = parser.Parse();
+
+        if (parserErrors.Any())
+        {
+            ReportErrors("Parser Error(s)", parserErrors);
+            return; // Stop if parsing failed
+        }
+
+        if (!commands.Any() && tokens.Any(t => t.Type != TokenType.EOF))
+        {
+            // This case might indicate the parser failed silently or recovered poorly.
+            // If there were tokens but no commands parsed, likely a syntax error wasn't caught/reported well.
+            // Or it could be valid (e.g. only comments/whitespace) if those were handled.
+            if (!parserErrors.Any()) // If no specific errors were reported, add a generic one
+            {
+                StatusText = "Parsing completed, but no valid commands found.";
+                Debug.WriteLine("Parsing completed, but no valid commands found.");
+                // Maybe return here depending on desired behavior for empty/comment-only code
+            }
+            // If there were errors, ReportErrors was already called.
+            return;
+        }
+
+
+        Debug.WriteLine("--- Parsing Successful ---");
+        // foreach (var cmd in commands) Debug.WriteLine($"Parsed: {cmd.GetType().Name}"); // Optional: Print commands
+
+        // 3. Syntax Validation
+        var validator = new SyntaxValidator(commands);
+        List<ParsingError> validationErrors = validator.Validate();
+       
+        if (validationErrors.Any())
+        {
+            ReportErrors("Validation Error(s)", validationErrors);
+            return; // Stop if validation failed
+        }
+
+        Debug.WriteLine("--- Validation Successful ---");
+
+        // 4. Interpretation (Execution)
+        StatusText = "Executing...";
+        var interpreter = new Interpreter();
+
+        // IMPORTANT: Use the *existing* _wallE and _pixelCanvas instances.
+        // Do NOT create new ones here unless specifically intended (like after resize).
+        // The PDF states execution continues on the modified canvas.
+        ParsingError? runtimeError = interpreter.Run(commands, _wallE, PixelCanvas);
+
+        if (runtimeError != null)
+        {
+            ReportErrors("Runtime Error", new List<ParsingError> { runtimeError });
+            // Status text is already set by ReportErrors
+        }
+        else
+        {
+            StatusText = "Execution finished successfully.";
+            // Make sure the canvas updates visually after execution
+            PixelCanvas.NotifyChanged(); // Force UI update
+            UpdateWallEPosition();      // Update Wall-E pos in VM if displayed
+        }
+        Debug.WriteLine("--- Code Execution Finished ---");
     }
 }

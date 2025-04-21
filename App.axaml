@@ -25,5 +25,9 @@
             <GradientStop Offset="0" Color="#b100c4"></GradientStop>
             <GradientStop Offset="1" Color="#e600ff"></GradientStop> 
         </LinearGradientBrush>
+        <LinearGradientBrush x:Key="PanelGradient" StartPoint="0%, 0%" EndPoint="100%, 100%">
+            <GradientStop Offset="0" Color="#0a0015"></GradientStop>
+            <GradientStop Offset="1" Color="#341259"></GradientStop> 
+        </LinearGradientBrush>
     </Application.Resources>
 </Application>

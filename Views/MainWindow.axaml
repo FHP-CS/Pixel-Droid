@@ -20,30 +20,38 @@
     </Design.DataContext>
 
     <Grid ColumnDefinitions="Auto,*,Auto" Background="{DynamicResource ResourceKey=PrimaryBackgroundGradient}" RowDefinitions="Auto,*,Auto" Margin="10">
-
-        <!-- Top Panel: Controls -->
-        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" Spacing="10" Margin="0,0,0,10">
-             <!-- Add Load/Save later -->
-            <!-- Temporary Test Button -->
-            <Button  Content="Run Test Sequence" Command="{Binding RunTestSequenceCommand}" IsVisible="False"/> <!-- Hide test btn later -->
-        </StackPanel>
-
         <StackPanel Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" HorizontalAlignment="Right" Orientation="Horizontal" Spacing="10" Margin="0,0,0,10">
             <TextBlock Text="Canvas Size:" VerticalAlignment="Center"/>
             <NumericUpDown Value="{Binding CanvasSize}" Minimum="8" Maximum="512" Increment="1" Width="120"/>
             <Button Content="↺ Resize" Background="{DynamicResource ResourceKey=ButtonGradient}" Command="{Binding ApplyResizeCommand}"/>
         </StackPanel> 
 
-        <Grid Grid.Column="0" Grid.Row="1" RowDefinitions="*,*" Background="{DynamicResource ResourceKey=PrimaryBackgroundGradient}">
-            <!-- Left Panel: Text Editor (Basic for now) -->
-            <StackPanel Grid.Row="1"  Orientation="Vertical" Spacing="5" Margin="0,0,0,10">
-                <Button Content="⏏️ Run"  Width="50" Height="20" Padding="3,0" Margin="10,0" HorizontalAlignment="Left" Background="{DynamicResource ResourceKey=ButtonGradient}" Command="{Binding ExecuteCodeCommand}"/>
+        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" Spacing="10" Margin="0,0,0,10">
+                <!-- Add Load/Save later -->
+                <Button  Content="Save" Background="{DynamicResource ResourceKey=ButtonGradient}"/> 
+                <Button  Content="Load" Background="{DynamicResource ResourceKey=ButtonGradient}"/> 
+
+        </StackPanel>
+        <!-- Top Panel: Controls -->
+        
+        <Grid Grid.Column="0" Grid.Row="1" RowDefinitions="Auto,*" Background="{DynamicResource ResourceKey=PanelGradient}">
+            <Border Grid.Row="0" Padding="5" Margin="10,0">
+                <Grid RowDefinitions="Auto,*">
+                    <Label Padding="10" Grid.Row="0">
+                        <Image Source="avares://PixelWallE/Assets/pixeldroid.png" VerticalAlignment="Top" HorizontalAlignment="Left" Width="250" Height="250"></Image>
+                    </Label>
+                </Grid>
+            </Border>
+                 <!-- Left Panel: Text Editor (Basic for now) -->
+            <Grid Grid.Row="1"  RowDefinitions="Auto,*" Margin="0,0,0,10">
+                <Button Grid.Row="0" Content="⏏️ Run"  Width="50" Height="20" Padding="3,0" Margin="10,0" HorizontalAlignment="Left" Background="{DynamicResource ResourceKey=ButtonGradient}" Command="{Binding ExecuteCodeCommand}"/>
+
                 <Border Grid.Row="1"
                         BorderThickness="1"
                         BorderBrush="DarkGray"
-                        Background="#2e3140"
+                        Background="#0d031c"
                         CornerRadius="8"
-                        MinWidth="300"
+                        MinWidth="400"
                         Margin="0,0,10,0">
                     <avedit:TextEditor
                         x:Name="CodeEditor"
@@ -52,19 +60,17 @@
                         Foreground="#D3D3D3"
                         Background="Transparent"
                         ShowLineNumbers="True"
-                        LineNumbersForeground="#888888"
+                        LineNumbersForeground="#6e5689"
                         Padding="5,0" 
                         BorderThickness="0"
                         WordWrap="False"
                         HorizontalScrollBarVisibility="Auto"
                         VerticalScrollBarVisibility="Auto"
-                         SyntaxHighlighting="XML" /> <!-- No binding needed here, handled in code-behind -->
+                        SyntaxHighlighting="XML" /> <!-- No binding needed here, handled in code-behind -->
                     <!-- SyntaxHighlighting="XML" -->
                 </Border>
-            </StackPanel>
+            </Grid>
         </Grid>
-        
-
         <!-- Center Panel: Canvas -->
         <Border Grid.Row="1" Grid.Column="1"
                 BorderBrush="DarkGray" BorderThickness="1"
@@ -79,7 +85,7 @@
                                      WallEX="{Binding WallEX}"
                                      WallEY="{Binding WallEY}" />
         </Border>
-        <Grid Grid.Row="1" Grid.Column="2" Width="10">  
+        <Grid Grid.Row="1" Grid.Column="2" Width="20">  
             <!-- Right Panel: Maybe Info/Output later -->
             <TextBlock Text="Output/Info" Foreground="Gray" IsVisible="False"/>
         </Grid>

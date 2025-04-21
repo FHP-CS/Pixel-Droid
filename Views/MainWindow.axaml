@@ -7,96 +7,104 @@
         xmlns:rend="clr-namespace:AvaloniaEdit.Rendering;assembly=AvaloniaEdit"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+        mc:Ignorable="d" d:DesignWidth="1366" d:DesignHeight="768"
+        Width="800" Height="600"
         x:Class="PixelWallE.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
-        Title="Pixel Wall-E">
+        Title="Pixel Wall-E"
+        TransparencyLevelHint="None"
+        SystemDecorations="None"
+        CanResize="True"
+        ExtendClientAreaToDecorationsHint="True"
+        WindowStartupLocation="CenterScreen">
 
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,
              to set the actual DataContext please modify the App.axaml.cs file. -->
         <vm:MainWindowViewModel />
     </Design.DataContext>
-
-    <Grid ColumnDefinitions="Auto,*,Auto" Background="{DynamicResource ResourceKey=PrimaryBackgroundGradient}" RowDefinitions="Auto,*,Auto" Margin="10">
-        <StackPanel Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" HorizontalAlignment="Right" Orientation="Horizontal" Spacing="10" Margin="0,0,0,10">
+   <Grid RowDefinitions="Auto,*,Auto" Background="{DynamicResource ResourceKey=PrimaryBackgroundGradient}">
+        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" Spacing="10" Margin="0,0,10,0">
+                <!-- Add Load/Save later -->
+                <Button  Content="Save" Background="{DynamicResource ResourceKey=ButtonGradient}"/> 
+                <Button  Content="Load" Background="{DynamicResource ResourceKey=ButtonGradient}"/> 
+        </StackPanel>
+        <StackPanel Grid.Row="0"  HorizontalAlignment="Center" Orientation="Horizontal" Spacing="10" Margin="0,0,10,0">
             <TextBlock Text="Canvas Size:" VerticalAlignment="Center"/>
             <NumericUpDown Value="{Binding CanvasSize}" Minimum="8" Maximum="512" Increment="1" Width="120"/>
             <Button Content="↺ Resize" Background="{DynamicResource ResourceKey=ButtonGradient}" Command="{Binding ApplyResizeCommand}"/>
         </StackPanel> 
-
-        <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" Spacing="10" Margin="0,0,0,10">
-                <!-- Add Load/Save later -->
-                <Button  Content="Save" Background="{DynamicResource ResourceKey=ButtonGradient}"/> 
-                <Button  Content="Load" Background="{DynamicResource ResourceKey=ButtonGradient}"/> 
-
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="-5" VerticalAlignment="Top" HorizontalAlignment="Right">
+            <Button Content="🗕" Padding="6,2" Width="30" Background="Transparent" Height="25" Margin="5,0" Click="MinimizeWindow"/>
+            <Button Content="🗖" Padding="6,2" Width="30" Background="Transparent" Height="25" Margin="5,0" Click="MaximizeWindow"/>
+            <Button Content="✕" Padding="6,2" Width="30" Background="Transparent" Height="25" Margin="5,0" Click="CloseWindow"/>
         </StackPanel>
-        <!-- Top Panel: Controls -->
-        
-        <Grid Grid.Column="0" Grid.Row="1" RowDefinitions="Auto,*" Background="{DynamicResource ResourceKey=PanelGradient}">
-            <Border Grid.Row="0" Padding="5" Margin="10,0">
-                <Grid RowDefinitions="Auto,*">
-                    <Label Padding="10" Grid.Row="0">
-                        <Image Source="avares://PixelWallE/Assets/pixeldroid.png" VerticalAlignment="Top" HorizontalAlignment="Left" Width="250" Height="250"></Image>
-                    </Label>
-                </Grid>
-            </Border>
-                 <!-- Left Panel: Text Editor (Basic for now) -->
-            <Grid Grid.Row="1"  RowDefinitions="Auto,*" Margin="0,0,0,10">
-                <Button Grid.Row="0" Content="⏏️ Run"  Width="50" Height="20" Padding="3,0" Margin="10,0" HorizontalAlignment="Left" Background="{DynamicResource ResourceKey=ButtonGradient}" Command="{Binding ExecuteCodeCommand}"/>
 
-                <Border Grid.Row="1"
-                        BorderThickness="1"
-                        BorderBrush="DarkGray"
-                        Background="#0d031c"
-                        CornerRadius="8"
-                        MinWidth="400"
-                        Margin="0,0,10,0">
-                    <avedit:TextEditor
-                        x:Name="CodeEditor"
-                        FontFamily="Consolas,Menlo,Monospace"
-                        FontSize="13"
-                        Foreground="#D3D3D3"
-                        Background="Transparent"
-                        ShowLineNumbers="True"
-                        LineNumbersForeground="#6e5689"
-                        Padding="5,0" 
-                        BorderThickness="0"
-                        WordWrap="False"
-                        HorizontalScrollBarVisibility="Auto"
-                        VerticalScrollBarVisibility="Auto"
-                        SyntaxHighlighting="XML" /> <!-- No binding needed here, handled in code-behind -->
-                    <!-- SyntaxHighlighting="XML" -->
+        <Grid Grid.Row="1" ColumnDefinitions="Auto,*">
+        
+            <Grid Grid.Column="0" RowDefinitions="Auto,*" Background="{DynamicResource ResourceKey=PanelGradient}">
+                <Border Grid.Row="0" Padding="5" Margin="10,0">
+                    <Grid RowDefinitions="Auto,*">
+                        <Label Padding="10" Grid.Row="0">
+                            <Image Source="avares://PixelWallE/Assets/pixeldroid.png" VerticalAlignment="Top" HorizontalAlignment="Left" Width="250" Height="250"></Image>
+                        </Label>
+                    </Grid>
                 </Border>
+                 <!-- Left Panel: Text Editor (Basic for now) -->
+                <Grid Grid.Row="1" RowDefinitions="Auto,*" Margin="0,0,0,10">
+                    <Button Grid.Row="0" Content="⏏️ Run"  Width="100" Height="20" Padding="3,0" Margin="10,0" HorizontalAlignment="Left" Background="{DynamicResource ResourceKey=ButtonGradient}" Command="{Binding ExecuteCodeCommand}"/>
+                    <Border Grid.Row="1"
+                            BorderThickness="1"
+                            BorderBrush="DarkGray"
+                            Background="#0d031c"
+                            CornerRadius="8"
+                            MinWidth="400"
+                            Margin="0,0,10,0">
+                        <avedit:TextEditor
+                            x:Name="CodeEditor"
+                            FontFamily="Consolas,Menlo,Monospace"
+                            FontSize="13"
+                            Foreground="#D3D3D3"
+                            Background="Transparent"
+                            ShowLineNumbers="True"
+                            LineNumbersForeground="#6e5689"
+                            Padding="5,0" 
+                            BorderThickness="0"
+                            WordWrap="False"
+                            HorizontalScrollBarVisibility="Auto"
+                            VerticalScrollBarVisibility="Auto"
+                            SyntaxHighlighting="XML" /> <!-- No binding needed here, handled in code-behind -->
+                            <!-- SyntaxHighlighting="XML" -->
+                    </Border>
+                </Grid>
             </Grid>
-        </Grid>
-        <!-- Center Panel: Canvas -->
-        <Border Grid.Row="1" Grid.Column="1"
-                BorderBrush="DarkGray" BorderThickness="1"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                Background="#FEFEFE"
-                ClipToBounds="True"> <!-- Ensure drawing stays within border -->
-            <!-- Bind the custom control's data and Wall-E position -->
-            <ctrl:PixelCanvasControl CanvasData="{Binding PixelCanvas}"
-                                     AxisThickness="25" 
-                                     AxisBackground="LightSteelBlue" 
-                                     AxisForeground="Black"
-                                     WallEX="{Binding WallEX}"
-                                     WallEY="{Binding WallEY}" />
-        </Border>
-        <Grid Grid.Row="1" Grid.Column="2" Width="20">  
+            <!-- Center Panel: Canvas -->
+            <Border Grid.Column="1"
+                    BorderBrush="DarkGray" BorderThickness="1"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    Background="#FEFEFE"
+                    ClipToBounds="True"> <!-- Ensure drawing stays within border -->
+                    <!-- Bind the custom control's data and Wall-E position -->
+                <ctrl:PixelCanvasControl CanvasData="{Binding PixelCanvas}"
+                                         AxisThickness="25" 
+                                         AxisBackground="LightSteelBlue" 
+                                         AxisForeground="Black"
+                                         WallEX="{Binding WallEX}"
+                                         WallEY="{Binding WallEY}" />
+            </Border>
+            <Grid Grid.Column="1" Width="20">  
             <!-- Right Panel: Maybe Info/Output later -->
             <TextBlock Text="Output/Info" Foreground="Gray" IsVisible="False"/>
+            </Grid>
+            <!-- Bottom Status Bar (using Border and TextBlock) -->
         </Grid>
-        <!-- Bottom Status Bar (using Border and TextBlock) -->
-        <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
+        <Border Grid.Row="2"
                 BorderBrush="LightGray" BorderThickness="0,1,0,0"
                 Padding="5,3" Margin="0,10,0,0" Background="{DynamicResource ResourceKey=PrimaryBackgroundGradient}">
-            <!-- Example Status Text - bind to a ViewModel property later -->
-            <TextBlock Text="{Binding StatusText, FallbackValue='Ready'}" VerticalAlignment="Center"/>
-            <!-- You could add more items in a StackPanel inside the Border -->
+                <!-- Example Status Text - bind to a ViewModel property later -->
+                <TextBlock Text="{Binding StatusText, FallbackValue='Ready'}" VerticalAlignment="Center"/>
+                <!-- You could add more items in a StackPanel inside the Border -->
         </Border>
-
     </Grid>
 </Window>

@@ -54,6 +54,21 @@ public partial class MainWindow : Window
             System.Diagnostics.Debug.WriteLine("Error: CodeEditor control not found!");
         }
     }
+    private void MinimizeWindow(object sender, RoutedEventArgs e)
+    {
+        this.WindowState = WindowState.Minimized;
+    }
+    private void MaximizeWindow(object sender, RoutedEventArgs e)
+    {
+        if(this.WindowState == WindowState.Maximized)
+            this.WindowState = WindowState.Normal;
+        else
+            this.WindowState = WindowState.Maximized;
+    }
+    private void CloseWindow(object sender, RoutedEventArgs e)
+    {
+        this.Close();
+    }
 
     private void MainWindow_Loaded(object? sender, RoutedEventArgs e)
     {

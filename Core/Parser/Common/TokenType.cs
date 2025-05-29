@@ -8,6 +8,10 @@ public enum TokenType
     Color,
     Size,
     DrawLine,
+    DrawCircle,
+    DrawRectangle,
+    GoTo,
+    Fill,
     // TODO: Add keywords for DrawCircle, DrawRectangle, Fill, var assignment ('<-'), functions, GoTo, labels...
 
     // Literals
@@ -15,9 +19,24 @@ public enum TokenType
     String,        // e.g., "Red", "Blue" (aunque en el PDF no usan comillas, lo trataremos como un tipo específico)
     Identifier,    // e.g., variable names, labels
 
+    //Operators
+
+    Plus,          // +
+    Minus,         // -
+    Multiply,      // *
+    Divide,        // /
+    Assignment,    // <- 
+    Power,         // **
+    Modulo,        // %
+    BooleanOp,     // && ||
+    ComparisonOp,  // == >= <= > <
+
+
     // Punctuation
     LParen,        // (
     RParen,        // )
+    LBrack,        // [
+    RBrack,        // ]
     Comma,         // ,
     // TODO: Add operators: Arrow (<-), Plus, Minus, Multiply, Divide, Power, Modulo, Comparators (==, >=, etc.), Logical (&&, ||)
 

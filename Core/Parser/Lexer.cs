@@ -24,7 +24,12 @@ public class Lexer
             { "Spawn", TokenType.Spawn },
             { "Color", TokenType.Color },
             { "Size", TokenType.Size },
-            { "DrawLine", TokenType.DrawLine }
+            { "DrawLine", TokenType.DrawLine },
+            { "DrawCircle", TokenType.DrawCircle},
+            { "DrawRectangle", TokenType.DrawRectangle},
+            { "GoTo", TokenType.GoTo},
+            { "Fill", TokenType.Fill},
+            
             // TODO: Add more keywords
         };
     }
@@ -68,20 +73,27 @@ public class Lexer
             case '(': AddToken(TokenType.LParen); break;
             case ')': AddToken(TokenType.RParen); break;
             case ',': AddToken(TokenType.Comma); break;
-            // TODO: Add operators like +, *, /, %, ==, >=, <=, >, <, &, |
+            case '+': AddToken(TokenType.Plus); break;
+            case '-': AddToken(TokenType.Minus); break;
+            case '*': AddToken(TokenType.Multiply); break;
+            case '/':
+                if (Peek() == '/')// is a comment
+                {
+                    Advance(); // Ahora _current está después de los dos '/'
 
-            // Minus sign needs lookahead (could be negative number)
-            case '-':
-                if (IsDigit(Peek()))
-                {
-                    Number(); // Handle negative number
+                    // Ahora, consume (ignora) todos los caracteres restantes en la línea
+                    // hasta que encuentres el final de la línea ('\n') o el final del código.
+                    while (Peek() != '\n' && !IsAtEnd())
+                    {
+                        Advance(); // Consume el carácter del comentario y avanza _current y _column
+                    }
                 }
-                else
+                else //is a divition
                 {
-                     throw new LexerException($"Unexpected character '{c}'. Did you mean a negative number?", _line, _column -1);
-                    // TODO: Handle minus operator when implemented: AddToken(TokenType.Minus);
+                    AddToken(TokenType.Divide);
                 }
                 break;
+            // TODO: Add operators like +, *, /, %, ==, >=, <=, >, <, &, |
 
             // Ignore whitespace
             case ' ':
@@ -111,7 +123,7 @@ public class Lexer
                 else
                 {
                     // Report error but don't add error token for now
-                     throw new LexerException($"Unexpected character: '{c}'", _line, _column -1);
+                    throw new LexerException($"Unexpected character: '{c}'", _line, _column - 1);
                     // AddToken(TokenType.Unknown, c.ToString());
                 }
                 break;
@@ -121,7 +133,7 @@ public class Lexer
     private void IdentifierOrColor()
     {
         // Consume alphanumeric characters (and potentially '-' as per PDF for variables/labels)
-        while (IsAlphaNumeric(Peek()) || Peek() == '-') Advance();
+        while (IsAlphaNumeric(Peek()) || Peek() == '-' || Peek() == '_') Advance();
 
         string text = _source.Substring(_start, _current - _start);
 
@@ -140,16 +152,16 @@ public class Lexer
             // Let's treat known colors as string literals implicitly for simplicity now.
             if (IsKnownColor(text))
             {
-                 AddToken(TokenType.String, text); // Add as string literal
+                AddToken(TokenType.String, text); // Add as string literal
             }
             else
             {
-                 // If not a known color, treat as identifier (for variables/labels later)
-                 AddToken(TokenType.Identifier);
-                 // TODO: When variables are added, this is correct.
-                 // If only known colors are allowed where strings are expected now,
-                 // this could be an error if encountered in `Color()` args.
-                 // The parser will handle this context check.
+                // If not a known color, treat as identifier (for variables/labels later)
+                AddToken(TokenType.Identifier);
+                // TODO: When variables are added, this is correct.
+                // If only known colors are allowed where strings are expected now,
+                // this could be an error if encountered in `Color()` args.
+                // The parser will handle this context check.
             }
         }
     }
@@ -176,7 +188,7 @@ public class Lexer
         }
         else
         {
-             throw new LexerException($"Invalid number format: '{numberString}'", _line, _start);
+            throw new LexerException($"Invalid number format: '{numberString}'", _line, _start);
         }
     }
 

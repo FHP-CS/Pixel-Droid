@@ -55,8 +55,8 @@ public class Parser
             }
             catch (System.Exception ex) // Catch unexpected errors
             {
-                 _errors.Add(new ParsingError($"Unexpected parsing error: {ex.Message}", CurrentTokenOrEOF().Line, CurrentTokenOrEOF().Column, ErrorType.Syntax));
-                 Synchronize(); // Attempt to recover
+                _errors.Add(new ParsingError($"Unexpected parsing error: {ex.Message}", CurrentTokenOrEOF().Line, CurrentTokenOrEOF().Column, ErrorType.Syntax));
+                Synchronize(); // Attempt to recover
             }
         }
 
@@ -108,13 +108,13 @@ public class Parser
     {
         Token keywordToken = Advance(); // Consume 'Spawn'
         Consume(TokenType.LParen, "Expected '(' after Spawn.");
-        Token xToken = Consume(TokenType.Number, "Expected X coordinate (number) for Spawn.");
+        AstNode xToken = ParseExpression();
         Consume(TokenType.Comma, "Expected ',' after X coordinate.");
-        Token yToken = Consume(TokenType.Number, "Expected Y coordinate (number) for Spawn.");
+        AstNode yToken = ParseExpression();
         Consume(TokenType.RParen, "Expected ')' after Y coordinate.");
 
-        int x = (int)(xToken.Literal ?? 0);
-        int y = (int)(yToken.Literal ?? 0);
+        int x = int.Parse(xToken.ToString());
+        int y = int.Parse(yToken.ToString());
         return new SpawnCommand(x, y, keywordToken);
     }
 
@@ -130,14 +130,14 @@ public class Parser
         return new ColorCommand(colorName, keywordToken);
     }
 
-     private ICommand ParseSizeCommand()
+    private ICommand ParseSizeCommand()
     {
         Token keywordToken = Advance(); // Consume 'Size'
         Consume(TokenType.LParen, "Expected '(' after Size.");
-        Token sizeToken = Consume(TokenType.Number, "Expected size (number) for Size.");
+        AstNode sizeToken = ParseExpression();
         Consume(TokenType.RParen, "Expected ')' after size.");
 
-        int size = (int)(sizeToken.Literal ?? 1); // Default to 1? Or error if null? Let's assume literal is valid.
+        int size = int.Parse(sizeToken.ToString()); // Default to 1? Or error if null? Let's assume literal is valid.
         return new SizeCommand(size, keywordToken);
     }
 
@@ -148,15 +148,15 @@ public class Parser
         Token dirXToken = Consume(TokenType.Number, "Expected X direction (-1, 0, or 1) for DrawLine.");
         Consume(TokenType.Comma, "Expected ',' after X direction.");
         Token dirYToken = Consume(TokenType.Number, "Expected Y direction (-1, 0, or 1) for DrawLine.");
-         Consume(TokenType.Comma, "Expected ',' after Y direction.");
-         Token distToken = Consume(TokenType.Number, "Expected distance (number) for DrawLine.");
+        Consume(TokenType.Comma, "Expected ',' after Y direction.");
+        Token distToken = Consume(TokenType.Number, "Expected distance (number) for DrawLine.");
         Consume(TokenType.RParen, "Expected ')' after distance.");
 
         int dirX = (int)(dirXToken.Literal ?? 0);
         int dirY = (int)(dirYToken.Literal ?? 0);
         int distance = (int)(distToken.Literal ?? 0);
 
-         // Basic validation for direction values (more robust validation in Validator/Runtime)
+        // Basic validation for direction values (more robust validation in Validator/Runtime)
         if (dirX < -1 || dirX > 1) Error(dirXToken, "X direction must be -1, 0, or 1.");
         if (dirY < -1 || dirY > 1) Error(dirYToken, "Y direction must be -1, 0, or 1.");
         if (dirX == 0 && dirY == 0) Error(dirXToken, "Direction (0, 0) is invalid for DrawLine.");
@@ -164,6 +164,76 @@ public class Parser
 
 
         return new DrawLineCommand(dirX, dirY, distance, keywordToken);
+    }
+
+    //Arithmetic
+    private AstNode ParseFactor()
+    {
+        Token token = Peek();
+        if (Peek().Type == TokenType.Number)
+        {
+            Consume(TokenType.Number, "Expected Number"); // Consume the number token
+            return new NumberNode(token.Literal);
+        }
+        else if (token.Type == TokenType.LParen)
+        {
+            Consume(TokenType.LParen, "Expected Left Pharentesis."); // Consume '('
+            AstNode node = ParseExpression(); // Parse the expression inside parentheses
+            Consume(TokenType.RParen, "Exected Left Pharentesis"); // Consume ')'
+            return node;
+        }
+        // Handle unary plus/minus (optional, more advanced)
+        // else if (token.Type == TokenType.PLUS || token.Type == TokenType.MINUS) { ... }
+        else
+        {
+            Error(token, $"Parser Error: Expected NUMBER or LPAREN but found {token.Type} ('{token.Literal}') at position {_current}");
+            return null; // Indicate statement parsing failed
+        }
+    }
+    private AstNode ParsePower()
+    {
+        AstNode node = ParseFactor();//first factor
+        if (Peek().Type == TokenType.Power)
+        {
+            Token opToken = Peek();
+            Consume(TokenType.Power, "Expected Multiplication operator.");
+            AstNode right = ParseFactor(); //second factor
+            node = new BinaryOpNode(node, opToken, right);
+        }
+        return node;
+    }
+    private AstNode ParseTerm()
+    {
+        AstNode node = ParsePower();//first factor
+        while (Peek().Type == TokenType.Multiply || Peek().Type == TokenType.Divide || Peek().Type == TokenType.Modulo)
+        {
+            Token opToken = Peek();
+            if (opToken.Type == TokenType.Multiply)
+                Consume(TokenType.Multiply, "Expected Multiplication operator.");
+            if (opToken.Type == TokenType.Divide)
+                Consume(TokenType.Divide, "Expected Division operator.");
+            if (opToken.Type == TokenType.Modulo)
+                Consume(TokenType.Modulo, "Expected Modulo operator");
+            AstNode right = ParsePower(); //second factor
+            node = new BinaryOpNode(node, opToken, right);
+        }
+        return node;
+    }
+    private AstNode ParseExpression()
+    {
+        AstNode node = ParseTerm();
+        while (Peek().Type == TokenType.Plus || Peek().Type == TokenType.Minus)
+        {
+            Token opToken = Peek();
+            if (opToken.Type == TokenType.Plus)
+                Consume(TokenType.Plus, "Expected Plus operator.");
+            if (opToken.Type == TokenType.Minus)
+                Consume(TokenType.Minus, "Expected Minus operator.");
+            AstNode rightNode = ParseTerm(); //second factor
+            node = new BinaryOpNode(node, opToken, rightNode);
+        }
+        return node;
+
     }
 
 
@@ -180,12 +250,12 @@ public class Parser
         throw new ParserException(errorMessage, current);
     }
 
-     private void Error(Token token, string message)
+    private void Error(Token token, string message)
     {
         // Avoid duplicate errors for the same token if Synchronize is called
         if (!_errors.Any(e => e.Line == token.Line && e.Column == token.Column))
         {
-             _errors.Add(new ParsingError(message, token.Line, token.Column, ErrorType.Syntax));
+            _errors.Add(new ParsingError(message, token.Line, token.Column, ErrorType.Syntax));
         }
     }
 
@@ -205,16 +275,17 @@ public class Parser
         return _tokens[_current];
     }
 
-     private Token Previous()
+    private Token Previous()
     {
         return _tokens[_current - 1];
     }
 
-     private Token CurrentTokenOrEOF() {
-         if (_current < _tokens.Count)
+    private Token CurrentTokenOrEOF()
+    {
+        if (_current < _tokens.Count)
             return _tokens[_current];
-         return _tokens.LastOrDefault() ?? new Token(TokenType.EOF, "", null, -1, -1); // Fallback EOF
-     }
+        return _tokens.LastOrDefault() ?? new Token(TokenType.EOF, "", null, -1, -1); // Fallback EOF
+    }
 
 
     // Basic error recovery: advance until we find a likely start of a new statement (or EOF)
@@ -242,7 +313,7 @@ public class Parser
         }
     }
 
-     // Custom exception for Parser errors
+    // Custom exception for Parser errors
     private class ParserException : System.Exception
     {
         public Token Token { get; } // Token where the error occurred

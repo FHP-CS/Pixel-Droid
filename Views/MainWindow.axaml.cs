@@ -10,7 +10,9 @@ using PixelWallE.ViewModels; // Your ViewModel namespace
 using System.Collections.Generic;
 using System.Linq; // For LINQ methods like Any, Where, Select, All
 using AvaloniaEdit.Rendering; // Namespace for LineNumberMargin
-using Avalonia.Media;        // Needed for Brushes.Transparent
+using Avalonia.Media;
+using TextMateSharp.Grammars;
+using AvaloniaEdit.TextMate;        // Needed for Brushes.Transparent
 
 
 namespace PixelWallE.Views;
@@ -41,6 +43,9 @@ public partial class MainWindow : Window
         InitializeComponent();
 
         _codeEditor = this.FindControl<TextEditor>("CodeEditor");
+        var _registryOptions = new RegistryOptions(ThemeName.DarkPlus);
+        var _textMateInstallation = _codeEditor.InstallTextMate(_registryOptions);
+        _textMateInstallation.SetGrammar(_registryOptions.GetScopeByLanguageId(_registryOptions.GetLanguageByExtension(".cs").Id));
 
         if (_codeEditor != null)
         {

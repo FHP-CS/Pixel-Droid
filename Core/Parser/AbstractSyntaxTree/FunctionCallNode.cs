@@ -1,0 +1,1 @@
+//(for GetActualX(), IsBrushColor(), etc.)

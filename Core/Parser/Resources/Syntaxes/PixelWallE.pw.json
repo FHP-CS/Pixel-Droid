@@ -1,0 +1,14 @@
+{
+    "name": "PixelWallE",
+    "scopeName": "source.pw",
+    "fileTypes": [".pw"],
+    "patterns": [
+        {
+            "include": "#comments"
+        },
+        {
+            
+        }
+    ]
+    
+}

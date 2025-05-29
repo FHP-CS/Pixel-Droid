@@ -18,34 +18,37 @@ public class Parser
 
     public Parser(List<Token> tokens)
     {
-        // Filter out potential EOL tokens if Lexer adds them and Parser doesn't need them
-        _tokens = tokens.Where(t => t.Type != TokenType.EOL).ToList();
+        // Filter unknown
+        _tokens = tokens.Where(t => t.Type != TokenType.Unknown).ToList();
     }
 
-    public (List<ICommand> Commands, List<ParsingError> Errors) Parse()
+    public (ProgramNode Program, List<ParsingError> Errors) Parse()
     {
         // Reset state for potential re-parsing
         _current = 0;
         _errors.Clear();
         _commands.Clear();
         _spawnEncountered = false;
+        ProgramNode program = new ProgramNode();
 
-        // Basic validation: Must start with Spawn (moved to SyntaxValidator)
-        // if (Peek().Type != TokenType.Spawn)
-        // {
-        //     Error(Peek(), "Code must start with a Spawn command.");
-        // }
-
-        while (!IsAtEnd())
+        while (!IsAtEnd() && Peek().Type != TokenType.EOF) // Continue until EOF
         {
             try
             {
-                ICommand? command = ParseStatement();
-                if (command != null)
+                if (Peek().Type == TokenType.EOF) break; // Reached end after EOLs
+
+                // Skip EOLs at the beginning of parsing or between statements
+                while (Peek().Type == TokenType.EOL && !IsAtEnd())
                 {
-                    _commands.Add(command);
+                    Advance();
                 }
-                // If command is null, an error was likely reported already by ParseStatement
+
+                StatementNode statement = ParseStatement();
+
+                if (statement != null)
+                {
+                    program.Statements.Add(statement);
+                }
             }
             catch (ParserException ex)
             {
@@ -63,10 +66,10 @@ public class Parser
         // Add any remaining errors gathered during parsing
         // _errors.AddRange(parsingErrors); // Add errors list if ParseStatement returns them
 
-        return (_commands, _errors);
+        return (program, _errors);
     }
 
-    private ICommand? ParseStatement()
+    private StatementNode ParseStatement()
     {
         Token currentToken = Peek();
         switch (currentToken.Type)
@@ -90,13 +93,19 @@ public class Parser
                 return ParseDrawLineCommand();
 
             // TODO: Add cases for DrawCircle, Rect, Fill, Assignment, GoTo, Labels...
-
+            case TokenType.Identifier:
+            {
+                // Could be an assignment: IDENTIFIER ASSIGN ...
+                // Could be a label: IDENTIFIER EOL (if labels are just identifier then newline)
+                // We'll need to peek ahead.
+                return ParseAssignmentOrLabelStatement(); // A new method to decide
+            }
             case TokenType.EOF:
                 return null; // End of file, no more statements
-
+            
             default:
                 // Unexpected token at the start of a statement
-                Error(currentToken, $"Unexpected token '{currentToken.Lexeme}'. Expected a command (Spawn, Color, etc.).");
+                Error(currentToken, $"Expected a statement but found '{currentToken.Lexeme}");
                 Advance(); // Consume the unexpected token to try and proceed
                 return null; // Indicate statement parsing failed
         }
@@ -104,41 +113,38 @@ public class Parser
 
     // --- Command Parsing Methods ---
 
-    private ICommand ParseSpawnCommand()
+    private StatementNode ParseSpawnCommand()
     {
         Token keywordToken = Advance(); // Consume 'Spawn'
         Consume(TokenType.LParen, "Expected '(' after Spawn.");
-        AstNode xToken = ParseExpression();
+        ExpressionNode xToken = ParseExpression();
         Consume(TokenType.Comma, "Expected ',' after X coordinate.");
-        AstNode yToken = ParseExpression();
+        ExpressionNode yToken = ParseExpression();
         Consume(TokenType.RParen, "Expected ')' after Y coordinate.");
 
-        int x = int.Parse(xToken.ToString());
-        int y = int.Parse(yToken.ToString());
-        return new SpawnCommand(x, y, keywordToken);
+        return new SpawnNode(x, y);
     }
 
-    private ICommand ParseColorCommand()
+    private StatementNode ParseColorCommand()
     {
         Token keywordToken = Advance(); // Consume 'Color'
         Consume(TokenType.LParen, "Expected '(' after Color.");
         // PDF shows Color("Red"), implying a string literal. Lexer handles known colors -> TokenType.String
-        Token colorToken = Consume(TokenType.String, "Expected color name (e.g., Red, Blue) for Color.");
+        ExpressionNode colorToken = Consume(TokenType.String, "Expected color name (e.g., Red, Blue) for Color.");
         Consume(TokenType.RParen, "Expected ')' after color name.");
 
         string colorName = colorToken.Lexeme; // Use the original lexeme
-        return new ColorCommand(colorName, keywordToken);
+        return new ColorNode(colorToken);
     }
 
-    private ICommand ParseSizeCommand()
+    private StatementNode ParseSizeCommand()
     {
         Token keywordToken = Advance(); // Consume 'Size'
         Consume(TokenType.LParen, "Expected '(' after Size.");
-        AstNode sizeToken = ParseExpression();
+        ExpressionNode size = ParseExpression();
         Consume(TokenType.RParen, "Expected ')' after size.");
 
-        int size = int.Parse(sizeToken.ToString()); // Default to 1? Or error if null? Let's assume literal is valid.
-        return new SizeCommand(size, keywordToken);
+        return new SizeNode(size);
     }
 
     private ICommand ParseDrawLineCommand()
@@ -167,18 +173,18 @@ public class Parser
     }
 
     //Arithmetic
-    private AstNode ParseFactor()
+    private ExpressionNode ParseFactor()
     {
         Token token = Peek();
         if (Peek().Type == TokenType.Number)
         {
             Consume(TokenType.Number, "Expected Number"); // Consume the number token
-            return new NumberNode(token.Literal);
+            return new NumberNode(int.Parse(token.Literal.ToString()));
         }
         else if (token.Type == TokenType.LParen)
         {
             Consume(TokenType.LParen, "Expected Left Pharentesis."); // Consume '('
-            AstNode node = ParseExpression(); // Parse the expression inside parentheses
+            ExpressionNode node = ParseExpression(); // Parse the expression inside parentheses
             Consume(TokenType.RParen, "Exected Left Pharentesis"); // Consume ')'
             return node;
         }
@@ -190,21 +196,21 @@ public class Parser
             return null; // Indicate statement parsing failed
         }
     }
-    private AstNode ParsePower()
+    private ExpressionNode ParsePower()
     {
-        AstNode node = ParseFactor();//first factor
+        ExpressionNode node = ParseFactor();//first factor
         if (Peek().Type == TokenType.Power)
         {
             Token opToken = Peek();
             Consume(TokenType.Power, "Expected Multiplication operator.");
-            AstNode right = ParseFactor(); //second factor
+            ExpressionNode right = ParseFactor(); //second factor
             node = new BinaryOpNode(node, opToken, right);
         }
         return node;
     }
-    private AstNode ParseTerm()
+    private ExpressionNode ParseTerm()
     {
-        AstNode node = ParsePower();//first factor
+        ExpressionNode node = ParsePower();//first factor
         while (Peek().Type == TokenType.Multiply || Peek().Type == TokenType.Divide || Peek().Type == TokenType.Modulo)
         {
             Token opToken = Peek();
@@ -214,14 +220,14 @@ public class Parser
                 Consume(TokenType.Divide, "Expected Division operator.");
             if (opToken.Type == TokenType.Modulo)
                 Consume(TokenType.Modulo, "Expected Modulo operator");
-            AstNode right = ParsePower(); //second factor
+            ExpressionNode right = ParsePower(); //second factor
             node = new BinaryOpNode(node, opToken, right);
         }
         return node;
     }
-    private AstNode ParseExpression()
+    private ExpressionNode ParseExpression()
     {
-        AstNode node = ParseTerm();
+        ExpressionNode node = ParseTerm();
         while (Peek().Type == TokenType.Plus || Peek().Type == TokenType.Minus)
         {
             Token opToken = Peek();
@@ -229,7 +235,7 @@ public class Parser
                 Consume(TokenType.Plus, "Expected Plus operator.");
             if (opToken.Type == TokenType.Minus)
                 Consume(TokenType.Minus, "Expected Minus operator.");
-            AstNode rightNode = ParseTerm(); //second factor
+            ExpressionNode rightNode = ParseTerm(); //second factor
             node = new BinaryOpNode(node, opToken, rightNode);
         }
         return node;
@@ -239,15 +245,28 @@ public class Parser
 
     // --- Helper Methods ---
 
+    private bool Check(TokenType type)
+    {
+        if (IsAtEnd()) return false;
+        return Peek().Type == type;
+    }
     private Token Consume(TokenType expectedType, string errorMessage)
     {
-        Token current = Peek();
-        if (current.Type == expectedType)
-        {
-            return Advance();
-        }
+        if (Check(expectedType)) return Advance();
         // Throw specific exception to be caught by Parse()
-        throw new ParserException(errorMessage, current);
+        throw new ParserException(errorMessage, Peek());
+    }
+    private bool Match(params TokenType[] types)
+    {
+        foreach (TokenType type in types)
+        {
+            if (Check(type))
+            {
+                Advance();
+                return true;
+            }
+        }
+        return false;
     }
 
     private void Error(Token token, string message)
@@ -296,20 +315,24 @@ public class Parser
 
         while (!IsAtEnd())
         {
+            if (Previous().Type == TokenType.EOL) return; // End of line is a good sync point
             // If the previous token was potentially an end-of-statement marker (like EOL if used), maybe stop.
             // Or look for start keywords of the next statement.
             switch (Peek().Type)
-            {
-                case TokenType.Spawn:
-                case TokenType.Color:
-                case TokenType.Size:
-                case TokenType.DrawLine:
-                // TODO: Add other statement starting keywords/tokens
-                case TokenType.EOF:
-                    return; // Found a likely start of a new statement or EOF
-            }
-
-            Advance(); // Keep consuming tokens
+                {
+                    // Keywords that likely start new statements
+                    case TokenType.Spawn:
+                    case TokenType.Color:
+                    case TokenType.Size:
+                    case TokenType.DrawLine:
+                    case TokenType.DrawCircle:
+                    case TokenType.DrawRectangle:
+                    // ... add other statement-starting keywords ...
+                    case TokenType.GoTo:
+                    case TokenType.Identifier: // Could be an assignment or a label
+                        return;
+                }
+                Advance();
         }
     }
 

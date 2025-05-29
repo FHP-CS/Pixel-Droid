@@ -1,12 +1,12 @@
 using PixelWallE.Common;
 using System;
-public class BinaryOpNode : AstNode
+public class BinaryOpNode : ExpressionNode
 {
-    public AstNode Left { get; }
-    public Token OperatorToken { get; } // Stores the operator token (+, -, *, /)
-    public AstNode Right { get; }
+    public ExpressionNode Left { get; }
+    public Token OperatorToken { get; } // Stores the operator type (+, *, <, &&, etc.)
+    public ExpressionNode Right { get; }
 
-    public BinaryOpNode(AstNode left, Token operatorToken, AstNode right)
+    public BinaryOpNode(ExpressionNode left, Token operatorToken, ExpressionNode right)
     {
         Left = left;
         OperatorToken = operatorToken;

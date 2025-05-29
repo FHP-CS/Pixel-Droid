@@ -28,15 +28,20 @@ public enum TokenType
     Assignment,    // <- 
     Power,         // **
     Modulo,        // %
-    BooleanOp,     // && ||
-    ComparisonOp,  // == >= <= > <
+    AND,           // &&
+    OR,            // ||
+    Equal_Equal,   // ==
+    Greater_Equal, // >=
+    Less_Equal,    // <=
+    Greater_Than,  // >
+    Less_Than,     // <
 
 
     // Punctuation
     LParen,        // (
     RParen,        // )
-    LBrack,        // [
-    RBrack,        // ]
+    LBracket,      // [
+    RBracket,      // ]
     Comma,         // ,
     // TODO: Add operators: Arrow (<-), Plus, Minus, Multiply, Divide, Power, Modulo, Comparators (==, >=, etc.), Logical (&&, ||)
 

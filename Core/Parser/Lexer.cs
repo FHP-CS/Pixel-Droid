@@ -72,15 +72,20 @@ public class Lexer
             // Single character tokens
             case '(': AddToken(TokenType.LParen); break;
             case ')': AddToken(TokenType.RParen); break;
+            case '[': AddToken(TokenType.LBracket); break;
+            case ']': AddToken(TokenType.RBracket); break;
             case ',': AddToken(TokenType.Comma); break;
             case '+': AddToken(TokenType.Plus); break;
             case '-': AddToken(TokenType.Minus); break;
-            case '*': AddToken(TokenType.Multiply); break;
+            case '*':
+                if (Peek() == '*')
+                    AddToken(TokenType.Power);//**
+                else
+                    AddToken(TokenType.Multiply);//*
+                break;
             case '/':
                 if (Peek() == '/')// is a comment
                 {
-                    Advance(); // Ahora _current está después de los dos '/'
-
                     // Ahora, consume (ignora) todos los caracteres restantes en la línea
                     // hasta que encuentres el final de la línea ('\n') o el final del código.
                     while (Peek() != '\n' && !IsAtEnd())
@@ -89,13 +94,66 @@ public class Lexer
                     }
                 }
                 else //is a divition
-                {
                     AddToken(TokenType.Divide);
+                break;
+            case '%': AddToken(TokenType.Modulo); break;
+            case '<':
+                if (Peek() == '-')
+                {
+                    AddToken(TokenType.Assignment);// <-
+                    Advance();
+                }
+                else if (Peek() == '=')
+                {
+                    AddToken(TokenType.Less_Equal);// <=
+                    Advance();
+                }
+                else
+                    AddToken(TokenType.Less_Than);// <
+                break;
+            case '>':
+                if (Peek() == '=') // ( >= )
+                {
+                    AddToken(TokenType.Greater_Equal);
+                    Advance();
+                }
+                else              // ( > )
+                    AddToken(TokenType.Greater_Than);
+                break;
+            case '=':
+                if (Peek() == '=')// ( == ) 
+                {
+                    AddToken(TokenType.Equal_Equal);
+                    Advance();
                 }
                 break;
-            // TODO: Add operators like +, *, /, %, ==, >=, <=, >, <, &, |
-
+            case '&':
+                if (Peek() == '&')
+                {
+                    Advance(); // Consume the second '&'
+                    AddToken(TokenType.AND); // Logical AND (&&)
+                }
+                else
+                {
+                    throw new LexerException("Unexpected character: '&'. Did you mean '&&'?", _line, _column - 1);
+                }
+                break;
+            case '|':
+                if (Peek() == '|')
+                {
+                    Advance(); // Consume the second '|'
+                    AddToken(TokenType.OR); // Logical OR (||)
+                }
+                else
+                {
+                    throw new LexerException("Unexpected character: '|'. Did you mean '||'?", _line, _column - 1);
+                }
+                break;
             // Ignore whitespace
+            case '"': // String literal
+                StringLiteral();
+                break;
+
             case ' ':
             case '\r':
             case '\t':
@@ -104,7 +162,7 @@ public class Lexer
 
             // New lines
             case '\n':
-                // AddToken(TokenType.EOL); // Add EOL token
+                AddToken(TokenType.EOL); // Add EOL token
                 _line++;
                 _column = 1; // Reset column at new line
                 break;
@@ -118,7 +176,7 @@ public class Lexer
                 }
                 else if (IsAlpha(c)) // Starting character for identifiers/keywords/colors
                 {
-                    IdentifierOrColor();
+                    Identifier();
                 }
                 else
                 {
@@ -130,10 +188,10 @@ public class Lexer
         }
     }
 
-    private void IdentifierOrColor()
+    private void Identifier()
     {
-        // Consume alphanumeric characters (and potentially '-' as per PDF for variables/labels)
-        while (IsAlphaNumeric(Peek()) || Peek() == '-' || Peek() == '_') Advance();
+        // Consume alphanumeric characters (and potentially '_' as per PDF for variables/labels)
+        while (IsAlphaNumeric(Peek())) Advance();
 
         string text = _source.Substring(_start, _current - _start);
 
@@ -143,27 +201,37 @@ public class Lexer
             AddToken(type);
         }
         else
+
         {
-            // It's not a keyword. Could be a color name or an identifier.
-            // For now, treat all non-keyword identifiers as potential color names *or* future variable/label names.
-            // The Parser will decide based on context.
-            // If it's a valid color name (like "Red", "Blue"), we can treat it as a string literal implicitly.
-            // Or, keep it generic Identifier and let parser check if context requires color.
-            // Let's treat known colors as string literals implicitly for simplicity now.
-            if (IsKnownColor(text))
-            {
-                AddToken(TokenType.String, text); // Add as string literal
-            }
-            else
-            {
-                // If not a known color, treat as identifier (for variables/labels later)
-                AddToken(TokenType.Identifier);
-                // TODO: When variables are added, this is correct.
-                // If only known colors are allowed where strings are expected now,
-                // this could be an error if encountered in `Color()` args.
-                // The parser will handle this context check.
-            }
+            // (for variables/labels later)
+            AddToken(TokenType.Identifier);
         }
+
+    }
+    private void StringLiteral()
+    {
+        // _start is at the opening '"'. Current char c (from ScanToken) was '"'.
+        while (Peek() != '"' && !IsAtEnd())
+        {
+            if (Peek() == '\n') // String literals usually cannot span lines without escape sequences
+            {
+                // Depending on spec, either throw error or allow and increment line counter
+                AddToken(TokenType.EOL);
+                _line++; _column = 0; // If allowing, update line/col
+            }
+            Advance();
+        }
+
+        if (IsAtEnd()) // Unterminated string
+        {
+            throw new LexerException("Unterminated string literal.", _line, _start + 1); // _start + 1 is the column of opening quote
+        }
+
+        Advance(); // Consume the closing quote.
+
+        // Extract the string value, excluding the quotes
+        string value = _source.Substring(_start + 1, _current - _start - 2);
+        AddToken(TokenType.String, value);
     }
 
     // Basic check for initial color names from PDF

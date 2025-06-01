@@ -14,20 +14,22 @@ public class BinaryOpNode : ExpressionNode
     }
     public override object Evaluate()
     {
-        int x =  int.Parse(Left.Evaluate().ToString());
-        int y = int.Parse(Right.Evaluate().ToString());
+        object x =  Left.Evaluate();
+        object y = Right.Evaluate();
         switch (OperatorToken.Type)
         {
+            case TokenType.AND:
+               return x && y;
             case TokenType.Plus:
-                return x + y;
+                return (int)x + (int)y;
             case TokenType.Minus:
-                return x - y;
+                return (int)x - (int)y;
             case TokenType.Multiply:
-                return x * y;
+                return (int)x * (int)y;
             case TokenType.Modulo:
-                return x % y;
+                return (int)x % (int)y;
             case TokenType.Power:
-                return x^y;
+                return (int)x^(int)y;
             case TokenType.Divide:
                 if (y == 0)
                     throw new DivideByZeroException("Error: Division by zero.");

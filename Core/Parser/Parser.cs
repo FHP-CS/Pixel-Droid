@@ -81,63 +81,109 @@ public class Parser
                 //     // Skip this token? Or parse and let validator handle? Let validator handle.
                 // }
                 _spawnEncountered = true; // Mark that Spawn was seen
-                return ParseSpawnCommand();
+                return ParseSpawnStatement();
 
-            case TokenType.Color:
-                return ParseColorCommand();
+            case TokenType.Color:        return ParseColorStatement();
 
-            case TokenType.Size:
-                return ParseSizeCommand();
+            case TokenType.Size:         return ParseSizeStatement();
 
-            case TokenType.DrawLine:
-                return ParseDrawLineCommand();
+            case TokenType.DrawLine:     return ParseDrawLineStatement();
+            
+            case TokenType.DrawCircle:      return ParseDrawCircleStatement();
 
-            // TODO: Add cases for DrawCircle, Rect, Fill, Assignment, GoTo, Labels...
+            case TokenType.DrawRectangle:       return ParseDrawRectangleStatement();
+     
+            case TokenType.Fill:           return ParseFillStatement();
+       
+            case TokenType.GoTo:           return ParseGoToStatement();
+    
             case TokenType.Identifier:
-            {
-                // Could be an assignment: IDENTIFIER ASSIGN ...
-                // Could be a label: IDENTIFIER EOL (if labels are just identifier then newline)
-                // We'll need to peek ahead.
-                return ParseAssignmentOrLabelStatement(); // A new method to decide
-            }
+                {
+                    //peek ahead
+                    if (PeekNext().Type == TokenType.Assignment)
+                    {
+                        return ParseAssignmentStatement();
+                    }
+                    else if (PeekNext().Type == TokenType.EOL || PeekNext().Type == TokenType.EOF)
+                    {
+                        return ParseLabelStatement();
+                    }
+                    else
+                    {
+                        Error(currentToken, $"Identifier not forming valid statement.");
+                        Advance(); // Consume the unexpected token to try and proceed
+                        return null;
+                    }
+
+                }
+            case TokenType.EOL:
+                {
+                    // It's an empty line. Consume EOL and return null (no statement).
+                    // The main ParseProgram loop already skips leading EOLs.
+                    // This handles EOLs that might be *between* statements or as "empty statements".
+                    Advance(); // Consume the EOL
+                    return null;
+                }
             case TokenType.EOF:
                 return null; // End of file, no more statements
-            
+
             default:
                 // Unexpected token at the start of a statement
-                Error(currentToken, $"Expected a statement but found '{currentToken.Lexeme}");
+                Error(currentToken, $"Expected a statement but found '{currentToken.Lexeme}.");
                 Advance(); // Consume the unexpected token to try and proceed
                 return null; // Indicate statement parsing failed
         }
     }
 
-    // --- Command Parsing Methods ---
+    // --- Statement Parsing Methods ---
+    private StatementNode ParseGoToStatement()
+    {
+        Consume(TokenType.GoTo, "Expected GoTo declaration.");
+        Consume(TokenType.LBracket, "Expected [ after GoTo.");
+        Token label = Consume(TokenType.Identifier, "Expected label name inside '[]' for GoTo.");
+        Consume(TokenType.RBracket, "Expected ] after Label.");
+        Consume(TokenType.LParen, "Expected ( after ].");
+        ExpressionNode condition = ParseExpression();
+        Consume(TokenType.RParen, "Expected ) after Condition.");
 
-    private StatementNode ParseSpawnCommand()
+        return new GoToNode(label,condition);
+    }
+    private StatementNode ParseLabelStatement()
+    {
+        Token labelNameToken = Consume(TokenType.Identifier, "Expected label. ");
+        return new LabelNode(labelNameToken);
+    }
+    private AssignmentNode ParseAssignmentStatement()
+    {
+        Token nameToken = Consume(TokenType.Identifier, "Expected a variable name for assignment.");
+        Consume(TokenType.Assignment, "Expected '<-' after variable name for assignment.");
+        ExpressionNode valueExpression = ParseExpression();
+        return new AssignmentNode(nameToken.Lexeme, valueExpression);
+    }
+    private StatementNode ParseSpawnStatement()
     {
         Token keywordToken = Advance(); // Consume 'Spawn'
         Consume(TokenType.LParen, "Expected '(' after Spawn.");
-        ExpressionNode xToken = ParseExpression();
+        ExpressionNode xExpression = ParseExpression();
         Consume(TokenType.Comma, "Expected ',' after X coordinate.");
-        ExpressionNode yToken = ParseExpression();
+        ExpressionNode yExpression = ParseExpression();
         Consume(TokenType.RParen, "Expected ')' after Y coordinate.");
 
-        return new SpawnNode(x, y);
+        return new SpawnNode(xExpression, yExpression);
     }
 
-    private StatementNode ParseColorCommand()
+    private StatementNode ParseColorStatement()
     {
         Token keywordToken = Advance(); // Consume 'Color'
         Consume(TokenType.LParen, "Expected '(' after Color.");
         // PDF shows Color("Red"), implying a string literal. Lexer handles known colors -> TokenType.String
-        ExpressionNode colorToken = Consume(TokenType.String, "Expected color name (e.g., Red, Blue) for Color.");
+        ExpressionNode colorExpression = ParseExpression();
         Consume(TokenType.RParen, "Expected ')' after color name.");
 
-        string colorName = colorToken.Lexeme; // Use the original lexeme
-        return new ColorNode(colorToken);
+        return new ColorNode(colorExpression);
     }
 
-    private StatementNode ParseSizeCommand()
+    private StatementNode ParseSizeStatement()
     {
         Token keywordToken = Advance(); // Consume 'Size'
         Consume(TokenType.LParen, "Expected '(' after Size.");
@@ -147,100 +193,187 @@ public class Parser
         return new SizeNode(size);
     }
 
-    private ICommand ParseDrawLineCommand()
+    private StatementNode ParseDrawLineStatement()
     {
         Token keywordToken = Advance(); // Consume 'DrawLine'
         Consume(TokenType.LParen, "Expected '(' after DrawLine.");
-        Token dirXToken = Consume(TokenType.Number, "Expected X direction (-1, 0, or 1) for DrawLine.");
+        ExpressionNode dirXExp = ParseExpression();
         Consume(TokenType.Comma, "Expected ',' after X direction.");
-        Token dirYToken = Consume(TokenType.Number, "Expected Y direction (-1, 0, or 1) for DrawLine.");
+        ExpressionNode dirYExp = ParseExpression();
         Consume(TokenType.Comma, "Expected ',' after Y direction.");
-        Token distToken = Consume(TokenType.Number, "Expected distance (number) for DrawLine.");
+        ExpressionNode distExp = ParseExpression();
         Consume(TokenType.RParen, "Expected ')' after distance.");
 
-        int dirX = (int)(dirXToken.Literal ?? 0);
-        int dirY = (int)(dirYToken.Literal ?? 0);
-        int distance = (int)(distToken.Literal ?? 0);
+        return new DrawLineNode(dirXExp, dirYExp, distExp);
+    }
+    private StatementNode ParseDrawCircleStatement()
+    {
+        Token keywordToken = Advance(); // Consume 'DrawCircle'
+        Consume(TokenType.LParen, "Expected '(' after DrawCircle.");
+        ExpressionNode radius = ParseExpression();
+        Consume(TokenType.RParen, "Expected ')' after radius.");
 
-        // Basic validation for direction values (more robust validation in Validator/Runtime)
-        if (dirX < -1 || dirX > 1) Error(dirXToken, "X direction must be -1, 0, or 1.");
-        if (dirY < -1 || dirY > 1) Error(dirYToken, "Y direction must be -1, 0, or 1.");
-        if (dirX == 0 && dirY == 0) Error(dirXToken, "Direction (0, 0) is invalid for DrawLine.");
-        if (distance < 0) Error(distToken, "Distance must be non-negative.");
+        return new DrawCircleNode(radius);
+    }
+    private StatementNode ParseDrawRectangleStatement()
+    {
+        Token keywordToken = Advance(); // Consume 'DrawRectangle
+        Consume(TokenType.LParen, "Expected '(' after DrawRectangle.");
+        ExpressionNode width = ParseExpression();
+        Consume(TokenType.Comma, "Expected ',' after width.");
+        ExpressionNode heigth = ParseExpression();
+        Consume(TokenType.RParen, "Expected ')' after heigth.");
+        return new DrawRectangleNode(width, heigth);
+    }
+    private StatementNode ParseFillStatement()
+    {
+        Token keywordToken = Advance(); // Consume 'Fill'
+        Consume(TokenType.LParen, "Expected '(' after Fill.");
+        Consume(TokenType.RParen, "Expected ')' after (.");
+        return new FillNode();
 
-
-        return new DrawLineCommand(dirX, dirY, distance, keywordToken);
     }
 
-    //Arithmetic
+    //EXPRESSIONS
+    private ExpressionNode ParseExpression()
+    {
+        return ParseLogicalAnd();
+    }
+    private ExpressionNode ParseLogicalAnd()
+    {
+        ExpressionNode node = ParseLogicalOr();// &&
+        while (Match(TokenType.AND))
+        {
+            Token opToken = Previous();
+            ExpressionNode rightNode = ParseLogicalOr();
+            node = new BinaryOpNode(node, opToken, rightNode);
+        }
+        return node;
+    }
+    private ExpressionNode ParseLogicalOr()// ||
+    {
+        ExpressionNode node = ParseEquality();
+        while (Match(TokenType.OR))
+        {
+            Token opToken = Previous();
+            ExpressionNode rightNode = ParseEquality();
+            node = new BinaryOpNode(node, opToken, rightNode);
+        }
+        return node;
+    }
+    private ExpressionNode ParseEquality()// ||
+    {
+        ExpressionNode node = ParseComparison();
+        while (Match(TokenType.Equal_Equal))
+        {
+            Token opToken = Previous();
+            ExpressionNode rightNode = ParseComparison();
+            node = new BinaryOpNode(node, opToken, rightNode);
+        }
+        return node;
+    }
+    private ExpressionNode ParseComparison()// ||
+    {
+        ExpressionNode node = ParseTerm();
+        while (Match(TokenType.Greater_Than, TokenType.Greater_Equal, TokenType.Less_Than, TokenType.Less_Equal))
+        {
+            Token opToken = Previous();
+            ExpressionNode rightNode = ParseTerm();
+            node = new BinaryOpNode(node, opToken, rightNode);
+        }
+        return node;
+    }
+
+    private ExpressionNode ParseTerm()//+ -
+    {
+        ExpressionNode node = ParseFactor();
+        while (Match(TokenType.Plus, TokenType.Minus))
+        {
+            Token opToken = Previous();
+            ExpressionNode rightNode = ParseFactor();
+            node = new BinaryOpNode(node, opToken, rightNode);
+        }
+        return node;
+    }
     private ExpressionNode ParseFactor()
     {
-        Token token = Peek();
-        if (Peek().Type == TokenType.Number)
+        ExpressionNode node = ParsePower();//first factor
+        while (Match(TokenType.Multiply, TokenType.Modulo, TokenType.Divide))
         {
-            Consume(TokenType.Number, "Expected Number"); // Consume the number token
-            return new NumberNode(int.Parse(token.Literal.ToString()));
+            Token opToken = Previous();
+            ExpressionNode rightNode = ParsePower();
+            node = new BinaryOpNode(node, opToken, rightNode);
         }
-        else if (token.Type == TokenType.LParen)
+        return node;
+    }
+    private ExpressionNode ParsePower()
+    {
+        ExpressionNode node = ParseUnary();//first factor
+        if (Match(TokenType.Power))
         {
-            Consume(TokenType.LParen, "Expected Left Pharentesis."); // Consume '('
+            Token opToken = Previous();
+            ExpressionNode right = ParseUnary(); //second factor
+            node = new BinaryOpNode(node, opToken, right);
+        }
+        return node;
+    }
+    private ExpressionNode ParseUnary()
+    {
+        if (Match(TokenType.Minus))
+        {
+            Token op = Previous();
+            return new UnaryOpNode(op, ParseUnary());
+        }
+        return ParseCallOrPrimary();
+    }
+
+    private ExpressionNode ParseCallOrPrimary()
+    {
+        Token token = Peek();
+        if (Check(TokenType.Identifier) && PeekNext().Type == TokenType.LParen)
+            return ParseFunctionCall();
+        if (Match(TokenType.Number))
+            return new NumberNode(((int)token.Literal));
+        if (Match(TokenType.String)) // For Color("Red")
+            return new StringNode((string)token.Literal);
+        if (Match(TokenType.Identifier))
+        {
+            return new VariableNode(token.Lexeme);
+        }
+        else if (Match(TokenType.LParen))
+        {
             ExpressionNode node = ParseExpression(); // Parse the expression inside parentheses
-            Consume(TokenType.RParen, "Exected Left Pharentesis"); // Consume ')'
+            Consume(TokenType.RParen, "Exected Right Parenthesis."); // Consume ')'
             return node;
         }
         // Handle unary plus/minus (optional, more advanced)
         // else if (token.Type == TokenType.PLUS || token.Type == TokenType.MINUS) { ... }
         else
         {
-            Error(token, $"Parser Error: Expected NUMBER or LPAREN but found {token.Type} ('{token.Literal}') at position {_current}");
+            Error(token, $"Parser Error: Expected Number , variable, string Parenthesis, or Function call Expression but found {token.Type} ('{token.Literal}') at position {_current}.");
             return null; // Indicate statement parsing failed
         }
     }
-    private ExpressionNode ParsePower()
+    private FunctionCallNode ParseFunctionCall()
     {
-        ExpressionNode node = ParseFactor();//first factor
-        if (Peek().Type == TokenType.Power)
+        //current token is identifier and next token is LParen
+        Token functionNameToken = Consume(TokenType.Identifier, "Expected function name."); // Consumes IDENTIFIER
+        Consume(TokenType.LParen, "Expected '(' after function name.");     // Consumes LPAREN
+        List<ExpressionNode> args = new List<ExpressionNode>();
+        if (!Check(TokenType.RParen))// !)
         {
-            Token opToken = Peek();
-            Consume(TokenType.Power, "Expected Multiplication operator.");
-            ExpressionNode right = ParseFactor(); //second factor
-            node = new BinaryOpNode(node, opToken, right);
+            args.Add(ParseExpression());
+            while (Match(TokenType.Comma))
+            {
+                args.Add(ParseExpression());
+            }
         }
-        return node;
+        Consume(TokenType.RParen, "Expected ')' after function arguments.");
+        return new FunctionCallNode(functionNameToken.Lexeme, args);
     }
-    private ExpressionNode ParseTerm()
-    {
-        ExpressionNode node = ParsePower();//first factor
-        while (Peek().Type == TokenType.Multiply || Peek().Type == TokenType.Divide || Peek().Type == TokenType.Modulo)
-        {
-            Token opToken = Peek();
-            if (opToken.Type == TokenType.Multiply)
-                Consume(TokenType.Multiply, "Expected Multiplication operator.");
-            if (opToken.Type == TokenType.Divide)
-                Consume(TokenType.Divide, "Expected Division operator.");
-            if (opToken.Type == TokenType.Modulo)
-                Consume(TokenType.Modulo, "Expected Modulo operator");
-            ExpressionNode right = ParsePower(); //second factor
-            node = new BinaryOpNode(node, opToken, right);
-        }
-        return node;
-    }
-    private ExpressionNode ParseExpression()
-    {
-        ExpressionNode node = ParseTerm();
-        while (Peek().Type == TokenType.Plus || Peek().Type == TokenType.Minus)
-        {
-            Token opToken = Peek();
-            if (opToken.Type == TokenType.Plus)
-                Consume(TokenType.Plus, "Expected Plus operator.");
-            if (opToken.Type == TokenType.Minus)
-                Consume(TokenType.Minus, "Expected Minus operator.");
-            ExpressionNode rightNode = ParseTerm(); //second factor
-            node = new BinaryOpNode(node, opToken, rightNode);
-        }
-        return node;
 
-    }
+
+
 
 
     // --- Helper Methods ---
@@ -293,6 +426,11 @@ public class Parser
     {
         return _tokens[_current];
     }
+    private Token PeekNext()
+    {
+        if (_current + 1 >= _tokens.Count) return _tokens[_tokens.Count - 1];//return last, EOL
+        return _tokens[_current + 1];
+    }
 
     private Token Previous()
     {
@@ -319,20 +457,20 @@ public class Parser
             // If the previous token was potentially an end-of-statement marker (like EOL if used), maybe stop.
             // Or look for start keywords of the next statement.
             switch (Peek().Type)
-                {
-                    // Keywords that likely start new statements
-                    case TokenType.Spawn:
-                    case TokenType.Color:
-                    case TokenType.Size:
-                    case TokenType.DrawLine:
-                    case TokenType.DrawCircle:
-                    case TokenType.DrawRectangle:
-                    // ... add other statement-starting keywords ...
-                    case TokenType.GoTo:
-                    case TokenType.Identifier: // Could be an assignment or a label
-                        return;
-                }
-                Advance();
+            {
+                // Keywords that likely start new statements
+                case TokenType.Spawn:
+                case TokenType.Color:
+                case TokenType.Size:
+                case TokenType.DrawLine:
+                case TokenType.DrawCircle:
+                case TokenType.DrawRectangle:
+                // ... add other statement-starting keywords ...
+                case TokenType.GoTo:
+                case TokenType.Identifier: // Could be an assignment or a label
+                    return;
+            }
+            Advance();
         }
     }
 

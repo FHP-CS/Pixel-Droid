@@ -28,7 +28,6 @@ public class SyntaxValidator
             // This check might be redundant if Parser handles empty input.
              return _errors;
         }
-
         // Rule 1: Must start with Spawn
         if (_commands[0] is not SpawnCommand)
         {

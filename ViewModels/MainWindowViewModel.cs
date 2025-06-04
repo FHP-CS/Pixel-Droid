@@ -8,7 +8,8 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 
 using PixelWallE.Parser;
-using PixelWallE.Runtime;
+using PixelWallE.Execution;
+
 using PixelWallE.Runtime.Commands;
 using PixelWallE.Common;
 using System.Text;
@@ -154,7 +155,7 @@ public partial class MainWindowViewModel : ObservableObject
 
         // 2. Parsing
         var parser = new Parser.Parser(tokens); // Fully qualify if namespace conflict
-        (List<ICommand> commands, List<ParsingError> parserErrors) = parser.Parse();
+        (ProgramNode source, List<ParsingError> parserErrors) = parser.Parse();
 
         if (parserErrors.Any())
         {
@@ -162,7 +163,7 @@ public partial class MainWindowViewModel : ObservableObject
             return; // Stop if parsing failed
         }
 
-        if (!commands.Any() && tokens.Any(t => t.Type != TokenType.EOF))
+        if (!source.Statements.Any() && tokens.Any(t => t.Type != TokenType.EOF))
         {
             // This case might indicate the parser failed silently or recovered poorly.
             // If there were tokens but no commands parsed, likely a syntax error wasn't caught/reported well.
@@ -182,25 +183,25 @@ public partial class MainWindowViewModel : ObservableObject
         // foreach (var cmd in commands) Debug.WriteLine($"Parsed: {cmd.GetType().Name}"); // Optional: Print commands
 
         // 3. Syntax Validation
-        var validator = new SyntaxValidator(commands);
-        List<ParsingError> validationErrors = validator.Validate();
+        // var validator = new SyntaxValidator(commands);
+        // List<ParsingError> validationErrors = validator.Validate();
        
-        if (validationErrors.Any())
-        {
-            ReportErrors("Validation Error(s)", validationErrors);
-            return; // Stop if validation failed
-        }
+        // if (validationErrors.Any())
+        // {
+        //     ReportErrors("Validation Error(s)", validationErrors);
+        //     return; // Stop if validation failed
+        // }
 
-        Debug.WriteLine("--- Validation Successful ---");
+        // Debug.WriteLine("--- Validation Successful ---");
 
         // 4. Interpretation (Execution)
         StatusText = "Executing...";
-        var interpreter = new Interpreter();
+        var interpreter = new Interpreter(_pixelCanvas, _wallE);
 
         // IMPORTANT: Use the *existing* _wallE and _pixelCanvas instances.
         // Do NOT create new ones here unless specifically intended (like after resize).
         // The PDF states execution continues on the modified canvas.
-        ParsingError? runtimeError = interpreter.Run(commands, _wallE, PixelCanvas);
+        ParsingError? runtimeError = interpreter.Run(source);
 
         if (runtimeError != null)
         {

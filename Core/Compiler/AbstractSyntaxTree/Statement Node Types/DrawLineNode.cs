@@ -15,4 +15,8 @@ public class  DrawLineNode : StatementNode
         Distance = _distance;
     }
     public override string ToString() => $"DrawLine({dirX}, {dirY}, {Distance})";
+    public override void Execute(Interpreter interpreter)
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections;
 using System;
+using System.Linq;
 using PixelWallE.Common;
 using PixelWallE.Execution;
 public class FunctionCallNode : ExpressionNode
@@ -20,5 +21,9 @@ public class FunctionCallNode : ExpressionNode
             ? string.Join(", ", Arguments.Select(arg => arg.ToString()))
             : "";
         return $"{FunctionName}({args})";
+    }
+    public override object Evaluate(Interpreter interpreter)
+    {
+        throw new NotImplementedException();
     }
 }

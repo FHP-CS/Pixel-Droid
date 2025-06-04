@@ -33,7 +33,7 @@ namespace PixelWallE.Execution
             WallEInstance = new WallE(Canvas);
             _isSpawned = false;
         }
-        public void Run(ProgramNode program)
+        public ParsingError? Run(ProgramNode program)
         {
             if (_statements != null)
                 Reset();
@@ -51,7 +51,7 @@ namespace PixelWallE.Execution
                     if (_labelTable.ContainsKey(labelNode.Name))
                     {
                         ReportError($"Duplicate label definition: '{labelNode.Name}'", labelNode.LabelToken);
-                        return;
+                         throw new RuntimeError($"Duplicate label definition: '{labelNode.Name}'", labelNode.LabelToken);
                     }
                     _labelTable[labelNode.Name] = i;
                 }
@@ -70,7 +70,7 @@ namespace PixelWallE.Execution
                 // Try to get a token from the first non-Spawn statement for error reporting
                 Token errorToken = GetFirstTokenOfStatement(_statements[firstIndexExecutable]);
                 ReportError("The first executable command in the script must be 'Spawn'.", errorToken);
-                return;
+                throw new RuntimeError("Cannot execute commands before Wall-E is successfully spawned.", errorToken);
             }
             // Main execution loop
             while (_programCounter < _statements.Count)
@@ -79,8 +79,8 @@ namespace PixelWallE.Execution
                 _programCounter++;
                 if (!_isSpawned && !(currentStatement is SpawnNode) && !(currentStatement is LabelNode))
                 {
-                    ReportError("Wall-E must be spawned using 'Spawn(x,y)' before other commands can be executed.", GetFirstTokenOfStatement(currentStatement));
-                    return;
+                    Token errorToken = GetFirstTokenOfStatement(currentStatement);
+                    throw new RuntimeError("Wall-E must be spawned using 'Spawn(x,y)' before other commands can be executed.", errorToken);
                 }
                 try
                 {
@@ -91,17 +91,19 @@ namespace PixelWallE.Execution
                 catch (RuntimeError ex)
                 {
                     ReportError(ex.Message, ex.Token);
-                    return;
+                    return new ParsingError(ex.Message, ex.Token.Line, ex.Token.Column, ErrorType.Runtime);
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"UNEXPECTED RUNTIME ERROR: {ex.Message} at statement {_programCounter-1}");
+                    Debug.WriteLine($"UNEXPECTED RUNTIME ERROR: {ex.Message} at statement {_programCounter - 1}");
                     Debug.WriteLine(ex.StackTrace);
                     ReportError($"An unexpected internal error occurred: {ex.Message}", GetFirstTokenOfStatement(currentStatement));
-                    return;
+                    return new ParsingError(ex.Message, -1, -1, ErrorType.Runtime);
+
                 }
-                
+
             }
+            return null;
         }
         private Token GetFirstTokenOfStatement(StatementNode statement)
         {
@@ -135,11 +137,11 @@ namespace PixelWallE.Execution
         }
         public int GetLabelAddress(string name, Token tokenForError)
         {
-            if(_labelTable.TryGetValue(name, out int address))
+            if (_labelTable.TryGetValue(name, out int address))
             {
                 return address;
             }
-             throw new RuntimeError($"Undefined label '{name}'.", tokenForError);
+            throw new RuntimeError($"Undefined label '{name}'.", tokenForError);
         }
         public void GoToAddress(int address)
         {

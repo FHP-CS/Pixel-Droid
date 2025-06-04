@@ -13,4 +13,8 @@ public class DrawRectangleNode : StatementNode
         Height = height;
     }
     public override string ToString() => $"DrawRectangle({Width}, {Height})";
+    public override void Execute(Interpreter interpreter)
+    {
+        throw new NotImplementedException();
+    }
 }

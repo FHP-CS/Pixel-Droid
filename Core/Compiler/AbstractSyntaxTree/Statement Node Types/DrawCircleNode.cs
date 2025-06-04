@@ -12,4 +12,8 @@ public class  DrawCircleNode : StatementNode
         Radius = radius;
     }
     public override string ToString() => $"DrawCircle({Radius})";
+    public override void Execute(Interpreter interpreter)
+    {
+        throw new NotImplementedException();
+    }
 }

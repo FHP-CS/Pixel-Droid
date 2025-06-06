@@ -19,6 +19,18 @@ public enum TokenType
     String,        // e.g., "Red", "Blue" (aunque en el PDF no usan comillas, lo trataremos como un tipo específico)
     Identifier,    // e.g., variable names, labels
 
+    //COlors
+
+    Red,
+    Blue,
+    Green,
+    Yellow,
+    Orange,
+    Purple,
+    Black,
+    White,
+    Transparent,
+
     //Operators
 
     Plus,          // +

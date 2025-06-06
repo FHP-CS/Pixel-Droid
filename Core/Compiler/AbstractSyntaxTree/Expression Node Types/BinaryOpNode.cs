@@ -15,95 +15,83 @@ public class BinaryOpNode : ExpressionNode
     }
     public override object Evaluate(Interpreter Interpreter)
     {
-        object leftValue = Left.Evaluate(Interpreter);
-        object rightValue = Right.Evaluate(Interpreter);
-        switch (OperatorToken.Type)
-        {
-            //Arithmetics
-            case TokenType.Plus:
-                if (leftValue is int LplusInt && rightValue is int RplusInt)
-                    return LplusInt + RplusInt;
-                throw new RuntimeError($"Operands for '+' must be integers. Got {leftValue?.GetType().Name} and {rightValue?.GetType().Name}.", OperatorToken);
-            case TokenType.Minus:
-                if (leftValue is int LminusInt && rightValue is int RminusInt)
-                    return LminusInt - RminusInt;
-                throw new RuntimeError($"Operands for '-' must be integers. Got {leftValue?.GetType().Name} and {rightValue?.GetType().Name}.", OperatorToken);
-            case TokenType.Multiply:
-                if (leftValue is int LmultInt && rightValue is int RmultInt)
-                    return LmultInt * RmultInt;
-                throw new RuntimeError($"Operands for '*' must be integers. Got {leftValue?.GetType().Name} and {rightValue?.GetType().Name}.", OperatorToken);
-            case TokenType.Modulo:
-                if (leftValue is int lIntMod && rightValue is int rIntMod)
-                {
-                    if (rIntMod == 0)   throw new RuntimeError("Modulo by zero.", OperatorToken);
-                    return lIntMod % rIntMod;
-                }
-                throw new RuntimeError($"Operands for '%' must be integers. Got {leftValue?.GetType().Name} and {rightValue?.GetType().Name}.", OperatorToken);
-            case TokenType.Power:
-                if (leftValue is int LpowInt && rightValue is int RpowInt)
-                {
-                    if (RpowInt < 0) // Math.Pow with negative exponent returns double, we need int result.
-                        throw new RuntimeError("Negative exponent in integer power operation (**) is supported for integer results only.", OperatorToken);
-                    return LpowInt ^ RpowInt;
-                }
-                throw new RuntimeError($"Operands for '**' must be integers. Got {leftValue?.GetType().Name} and {rightValue?.GetType().Name}.", OperatorToken);
-            case TokenType.Divide:
-                if (leftValue is int LdivInt && rightValue is int RdivInt)
-                {
-                    if (LdivInt == 0) throw new DivideByZeroException("Error: Division by zero.");
-                    return LdivInt / RdivInt;
-                }
-                throw new RuntimeError($"Operands for '/' must be integers. Got {leftValue?.GetType().Name} and {rightValue?.GetType().Name}.", OperatorToken);
+        object leftValueObj = Left.Evaluate(Interpreter);
+        object rightValueObj = Right.Evaluate(Interpreter);
+        if (OperatorToken.Type == TokenType.Plus ||
+             OperatorToken.Type == TokenType.Minus ||
+             OperatorToken.Type == TokenType.Multiply ||
+             OperatorToken.Type == TokenType.Divide ||
+             OperatorToken.Type == TokenType.Modulo ||
+             OperatorToken.Type == TokenType.Power)
+            {
+            if (!(leftValueObj is int) || !(rightValueObj is int))
+            {
+                // Type error: could also try to convert, but PDF implies integers.
+                // For example, Convert.ToInt32 might work but could throw if not convertible.
+                // Let's be strict for now as per "Número entero".
+                throw new RuntimeError($"Operands for arithmetic operator '{OperatorToken.Lexeme}' must be integers.", OperatorToken);
+            }
+            int leftInt = (int)leftValueObj;
+            int rightInt = (int)rightValueObj;
 
-
-
-            // --- Equality Operations ---
-            case TokenType.Equal_Equal: // ==
-                return AreEqual(leftValue, rightValue); // Helper for flexible equality
-                                                        // --- Comparison Operations ---
-                                                        // For comparisons, we expect numbers primarily.
-                                                        // The PDF implies comparison results are used in GoTo (condition), so they should be boolean.
-            case TokenType.Greater_Than: // >
-                EnsureNumericOperands(leftValue, rightValue, OperatorToken);
-                return Convert.ToInt32(leftValue) > Convert.ToInt32(rightValue);
-            case TokenType.Less_Than: // <
-                EnsureNumericOperands(leftValue, rightValue, OperatorToken);
-                return Convert.ToInt32(leftValue) < Convert.ToInt32(rightValue);
-            case TokenType.Greater_Equal: // >=
-                EnsureNumericOperands(leftValue, rightValue, OperatorToken);
-                return Convert.ToInt32(leftValue) >= Convert.ToInt32(rightValue);
-            case TokenType.Less_Equal: // <=
-                EnsureNumericOperands(leftValue, rightValue, OperatorToken);
-                return Convert.ToInt32(leftValue) <= Convert.ToInt32(rightValue);
-
-            // --- Logical Operations ---
-            // Operands should evaluate to booleans (which might be represented as 0 or 1 from comparisons)
-            case TokenType.AND: // &&
-                // Short-circuiting AND: if left is false, result is false, don't eval right.
-                // However, our current structure evaluates both left and right before this switch.
-                // To implement true short-circuiting, the Interpreter logic or the node structure
-                // for AND/OR would need to be different (e.g., evaluate left, then conditionally evaluate right).
-                // For now, standard evaluation:
-                EnsureBooleanOperands(leftValue, rightValue, OperatorToken, Interpreter); // Use interpreter to get truthiness
-                return IsTruthy(leftValue, Interpreter) && IsTruthy(rightValue, Interpreter);
-            case TokenType.OR: // ||
-                EnsureBooleanOperands(leftValue, rightValue, OperatorToken, Interpreter); // Use interpreter to get truthiness
-                return IsTruthy(leftValue, Interpreter) || IsTruthy(rightValue, Interpreter);
-
-            default:
-                throw new RuntimeError($"Unsupported binary operator '{OperatorToken.Lexeme}'.", OperatorToken);
-
+            switch (OperatorToken.Type)
+            {
+                // --- Arithmetics Operations ---
+                case TokenType.Plus:
+                    return leftInt + rightInt;
+                case TokenType.Minus:
+                    return leftInt - rightInt;
+                case TokenType.Multiply:
+                    return leftInt * rightInt;
+                case TokenType.Modulo:
+                    if (rightInt == 0) throw new RuntimeError("Modulo by zero.", OperatorToken);
+                    return leftInt % rightInt;
+                case TokenType.Power:
+                    if (rightInt < 0) throw new RuntimeError("Negative exponent in integer power operation (**) is supported for integer results only.", OperatorToken);
+                    return (int)Math.Pow(leftInt, rightInt);
+                case TokenType.Divide:
+                    if (rightInt == 0) throw new DivideByZeroException("Error: Division by zero.");
+                    return leftInt / rightInt;
+            }
         }
+        // --- Comparison Operations ---
+        if (OperatorToken.Type == TokenType.Greater_Than ||
+            OperatorToken.Type == TokenType.Greater_Equal ||
+            OperatorToken.Type == TokenType.Less_Than ||
+            OperatorToken.Type == TokenType.Less_Equal ||
+            OperatorToken.Type == TokenType.Equal_Equal)
+        {
+            if (OperatorToken.Type == TokenType.Equal_Equal) return AreEqual(leftValueObj, rightValueObj); // Helper for flexible equality
+            if (leftValueObj is int lInt && rightValueObj is int rInt)
+            {
+                switch (OperatorToken.Type)
+                {                                                   // The PDF implies comparison results are used in GoTo (condition), so they should be boolean.
+                    case TokenType.Greater_Than: return lInt > rInt;
+                    case TokenType.Less_Than: return lInt < rInt;
+                    case TokenType.Greater_Equal: return lInt >= rInt;
+                    case TokenType.Less_Equal: return lInt <= rInt;
+                }
+            }
+        }
+        // --- Logical Operations ---
+        // Operands must be booleans.
+        if (OperatorToken.Type == TokenType.AND ||
+            OperatorToken.Type == TokenType.OR)
+        {
+            EnsureBooleanOperands(leftValueObj, rightValueObj, OperatorToken, Interpreter); // Use interpreter to get truthiness
+            switch (OperatorToken.Type)
+            {
+                case TokenType.AND: // &&
+                    return IsTruthy(leftValueObj, Interpreter) && IsTruthy(rightValueObj, Interpreter);
+                case TokenType.OR: // ||
+                    return IsTruthy(leftValueObj, Interpreter) || IsTruthy(rightValueObj, Interpreter);
+
+            }
+        }
+        throw new RuntimeError($"Unsupported binary operator '{OperatorToken.Lexeme}'.",OperatorToken);
     }
     public override string ToString() => $"({Left} {OperatorToken.Literal} {Right})";
     // Helper for type checking numeric operations
-    private void EnsureNumericOperands(object left, object right, Token opToken)
-    {
-        if (!(left is int) || !(right is int))
-        {
-            throw new RuntimeError($"Operands for '{opToken.Lexeme}' must both be integers. Got {left?.GetType().Name} and {right?.GetType().Name}.", opToken);
-        }
-    }
     private bool AreEqual(object left, object right)
     {
         if (left == null && right == null) return true;// son null ambos

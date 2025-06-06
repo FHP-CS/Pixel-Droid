@@ -18,16 +18,15 @@ public class SpawnNode : StatementNode
     public override string ToString() => $"Spawn({X}, {Y})";
     public override void Execute(Interpreter Interpreter)
     {
-
-        if (X.Evaluate(Interpreter) is int x && Y.Evaluate(Interpreter) is int y)
-        {
-            if (!Interpreter.WallEInstance.Spawn(x, y))
-            {
-                // As per PDF, runtime error stops execution
-                throw new RuntimeError($"Spawn position ({X}, {Y}) is outside canvas bounds (W:{Interpreter.Canvas.Width}, H:{Interpreter.Canvas.Height}).", SpawnToken);
-            }
-        }
-        else   throw new RuntimeError($"Arguments ({X} and {Y}) must be integers", SpawnToken);
+        object Xobj = X.Evaluate(Interpreter);
+        object Yobj = Y.Evaluate(Interpreter);
+        
+        if(!(Xobj is int x))    throw new RuntimeError($"X argument for Spawn must be an integer.", SpawnToken);
+        if(!(Yobj is int y))    throw new RuntimeError($"Y argument for Spawn must be an integer.", SpawnToken);
+        
+        bool sucess = Interpreter.WallEInstance.Spawn(x,y);
+        if(!sucess)
+           throw new RuntimeError($"Spawn command failed. Position ({Xobj},{Yobj}) might be out of canvas bounds.", SpawnToken);
         
 
     }

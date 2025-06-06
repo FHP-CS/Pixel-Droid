@@ -101,7 +101,7 @@ public class WallE
             Debug.WriteLine($"Error: Invalid direction ({dirX}, {dirY}) for DrawLine.");
             return false; // Invalid direction
         }
-        if (distance <= 0) return true; // Drawing a line of 0 length does nothing, successfully.
+        if (distance <= 0) return false; // Drawing a line of 0 length does nothing, successfully.
         if (BrushColor == Colors.Transparent)
         {
              // Move Wall-E without drawing

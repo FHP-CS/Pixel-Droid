@@ -24,6 +24,11 @@ public class FunctionCallNode : ExpressionNode
     }
     public override object Evaluate(Interpreter interpreter)
     {
+        string name = FunctionName.ToLower();
+        if( name == "getactualx")     return interpreter.WallEInstance.X;
+        if( name == "getactualy")     return interpreter.WallEInstance.Y;
+        if( name == "getcanvassize")     return interpreter.Canvas.Height;
+
         throw new NotImplementedException();
     }
 }

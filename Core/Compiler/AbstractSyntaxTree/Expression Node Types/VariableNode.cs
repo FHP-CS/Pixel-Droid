@@ -7,9 +7,9 @@ public class VariableNode : ExpressionNode
     public string Name { get; }
     public Token VarToken { get; }
 
-    public VariableNode(Token varToken)
+    public VariableNode(string name,Token varToken)
     {
-        Name = varToken.Lexeme;
+        Name = name;
         VarToken = varToken;
     }
     public override string ToString() => Name;

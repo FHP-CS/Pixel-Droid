@@ -41,7 +41,7 @@ public partial class MainWindowViewModel : ObservableObject
 
     // **** ADD THIS PROPERTY ****
     [ObservableProperty]
-    private string _statusText = "Ready"; // Initialize with default status
+    public string _statusText = "Ready"; // Initialize with default status
     // **** END OF ADDITION ****
 
     public bool IsWallESpawned => WallEX >= 0 && WallEY >= 0;
@@ -143,6 +143,10 @@ public partial class MainWindowViewModel : ObservableObject
         // 1. Lexing
         var lexer = new Lexer(CodeText);
         (List<Token> tokens, List<ParsingError> lexerErrors) = lexer.Tokenize();
+        for (int i = 0; i < tokens.Count; i++)
+        {
+            StatusText = $"{tokens[i].Type}";
+        }
 
         if (lexerErrors.Any())
         {
@@ -170,7 +174,7 @@ public partial class MainWindowViewModel : ObservableObject
             // Or it could be valid (e.g. only comments/whitespace) if those were handled.
             if (!parserErrors.Any()) // If no specific errors were reported, add a generic one
             {
-                StatusText = "Parsing completed, but no valid commands found.";
+                // StatusText = "Parsing completed, but no valid commands found.";
                 Debug.WriteLine("Parsing completed, but no valid commands found.");
                 // Maybe return here depending on desired behavior for empty/comment-only code
             }
@@ -195,7 +199,7 @@ public partial class MainWindowViewModel : ObservableObject
         // Debug.WriteLine("--- Validation Successful ---");
 
         // 4. Interpretation (Execution)
-        StatusText = "Executing...";
+        // StatusText = "Executing...";
         var interpreter = new Interpreter(_pixelCanvas, _wallE);
 
         // IMPORTANT: Use the *existing* _wallE and _pixelCanvas instances.
@@ -210,7 +214,7 @@ public partial class MainWindowViewModel : ObservableObject
         }
         else
         {
-            StatusText = "Execution finished successfully.";
+            // StatusText = "Execution finished successfully.";
             // Make sure the canvas updates visually after execution
             PixelCanvas.NotifyChanged(); // Force UI update
             UpdateWallEPosition();      // Update Wall-E pos in VM if displayed

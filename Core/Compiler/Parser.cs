@@ -11,7 +11,6 @@ public class Parser
     private readonly List<Token> _tokens;
     private int _current = 0;
     private readonly List<ParsingError> _errors = new List<ParsingError>();
-    private readonly List<ICommand> _commands = new List<ICommand>();
 
     // Flag to track if Spawn has been encountered (as per PDF rule)
     private bool _spawnEncountered = false;
@@ -27,7 +26,6 @@ public class Parser
         // Reset state for potential re-parsing
         _current = 0;
         _errors.Clear();
-        _commands.Clear();
         _spawnEncountered = false;
         ProgramNode program = new ProgramNode();
 
@@ -58,7 +56,12 @@ public class Parser
             }
             catch (System.Exception ex) // Catch unexpected errors
             {
-                _errors.Add(new ParsingError($"Unexpected parsing error: {ex.Message}", CurrentTokenOrEOF().Line, CurrentTokenOrEOF().Column, ErrorType.Syntax));
+                string Tokens = "";
+                for (int i = 0; i < _tokens.Count; i++)
+                {
+                    Tokens += _tokens[i].ToString() + ",";
+                }
+                    _errors.Add(new ParsingError($"TOkens: {Tokens}\nUnexpected parsing error: {ex.Message}", CurrentTokenOrEOF().Line, CurrentTokenOrEOF().Column, ErrorType.Syntax));
                 Synchronize(); // Attempt to recover
             }
         }
@@ -129,7 +132,7 @@ public class Parser
 
             default:
                 // Unexpected token at the start of a statement
-                Error(currentToken, $"Expected a statement but found '{currentToken.Lexeme}.");
+                // Error(currentToken, $"Expected a statement but found '{currentToken.Lexeme}'.");
                 Advance(); // Consume the unexpected token to try and proceed
                 return null; // Indicate statement parsing failed
         }
@@ -177,6 +180,7 @@ public class Parser
         Token keywordToken = Advance(); // Consume 'Color'
         Consume(TokenType.LParen, "Expected '(' after Color.");
         // PDF shows Color("Red"), implying a string literal. Lexer handles known colors -> TokenType.String
+        
         ExpressionNode colorExpression = ParseExpression();
         Consume(TokenType.RParen, "Expected ')' after color name.");
 
@@ -204,7 +208,7 @@ public class Parser
         ExpressionNode distExp = ParseExpression();
         Consume(TokenType.RParen, "Expected ')' after distance.");
 
-        return new DrawLineNode(dirXExp, dirYExp, distExp);
+        return new DrawLineNode(dirXExp, dirYExp, distExp, keywordToken);
     }
     private StatementNode ParseDrawCircleStatement()
     {
@@ -332,12 +336,12 @@ public class Parser
         if (Check(TokenType.Identifier) && PeekNext().Type == TokenType.LParen)
             return ParseFunctionCall();
         if (Match(TokenType.Number))
-            return new NumberNode(((int)Previous().Literal));
+            return new NumberNode((int)((double)(Previous().Literal)));
         if (Match(TokenType.String)) // For Color("Red")
-            return new StringNode((string)Previous().Literal);
+            return new StringNode((string)(Previous().Literal));
         if (Match(TokenType.Identifier))
         {
-            return new VariableNode(Previous());
+            return new VariableNode(Previous().Lexeme, Previous());
         }
         else if (Match(TokenType.LParen))
         {

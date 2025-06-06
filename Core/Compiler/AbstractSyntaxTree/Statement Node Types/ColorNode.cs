@@ -18,7 +18,7 @@ public class ColorNode : StatementNode
         if (ColorExpression.Evaluate(Interpreter) is string color)
             Interpreter.WallEInstance.SetColor(color);
         else
-            throw new RuntimeError($"Argument ({ColorExpression} must be integers", ColorToken);
+            throw new RuntimeError($"Argument ({ColorExpression} must be a string", ColorToken);
 
 
     }

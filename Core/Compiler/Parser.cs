@@ -61,7 +61,7 @@ public class Parser
                 {
                     Tokens += _tokens[i].ToString() + ",";
                 }
-                    _errors.Add(new ParsingError($"TOkens: {Tokens}\nUnexpected parsing error: {ex.Message}", CurrentTokenOrEOF().Line, CurrentTokenOrEOF().Column, ErrorType.Syntax));
+                _errors.Add(new ParsingError($"TOkens: {Tokens}\nUnexpected parsing error: {ex.Message}", CurrentTokenOrEOF().Line, CurrentTokenOrEOF().Column, ErrorType.Syntax));
                 Synchronize(); // Attempt to recover
             }
         }
@@ -86,20 +86,20 @@ public class Parser
                 _spawnEncountered = true; // Mark that Spawn was seen
                 return ParseSpawnStatement();
 
-            case TokenType.Color:        return ParseColorStatement();
+            case TokenType.Color: return ParseColorStatement();
 
-            case TokenType.Size:         return ParseSizeStatement();
+            case TokenType.Size: return ParseSizeStatement();
 
-            case TokenType.DrawLine:     return ParseDrawLineStatement();
-            
-            case TokenType.DrawCircle:      return ParseDrawCircleStatement();
+            case TokenType.DrawLine: return ParseDrawLineStatement();
 
-            case TokenType.DrawRectangle:       return ParseDrawRectangleStatement();
-     
-            case TokenType.Fill:           return ParseFillStatement();
-       
-            case TokenType.GoTo:           return ParseGoToStatement();
-    
+            case TokenType.DrawCircle: return ParseDrawCircleStatement();
+
+            case TokenType.DrawRectangle: return ParseDrawRectangleStatement();
+
+            case TokenType.Fill: return ParseFillStatement();
+
+            case TokenType.GoTo: return ParseGoToStatement();
+
             case TokenType.Identifier:
                 {
                     //peek ahead
@@ -149,7 +149,7 @@ public class Parser
         ExpressionNode condition = ParseExpression();
         Consume(TokenType.RParen, "Expected ) after Condition.");
 
-        return new GoToNode(label,condition);
+        return new GoToNode(label, condition);
     }
     private StatementNode ParseLabelStatement()
     {
@@ -180,8 +180,13 @@ public class Parser
         Token keywordToken = Advance(); // Consume 'Color'
         Consume(TokenType.LParen, "Expected '(' after Color.");
         // PDF shows Color("Red"), implying a string literal. Lexer handles known colors -> TokenType.String
-        
-        ExpressionNode colorExpression = ParseExpression();
+        ExpressionNode colorExpression;
+        if (MatchColor(Peek()))
+        {
+            colorExpression = new StringNode(GetColor(Advance()));//Get the string directly
+        }
+        else { colorExpression = ParseExpression(); } //parse expresion to get color
+
         Consume(TokenType.RParen, "Expected ')' after color name.");
 
         return new ColorNode(keywordToken, colorExpression);
@@ -372,7 +377,7 @@ public class Parser
             }
         }
         Consume(TokenType.RParen, "Expected ')' after function arguments.");
-        return new FunctionCallNode(functionNameToken.Lexeme, args);
+        return new FunctionCallNode(functionNameToken.Lexeme, functionNameToken, args);
     }
 
 
@@ -380,7 +385,37 @@ public class Parser
 
 
     // --- Helper Methods ---
+    private bool MatchColor(Token token)
+    {
+        TokenType type = token.Type;
+        if (type == TokenType.Red ||
+           type == TokenType.Blue ||
+           type == TokenType.Green ||
+           type == TokenType.Yellow ||
+           type == TokenType.Orange ||
+           type == TokenType.Purple ||
+           type == TokenType.Black ||
+           type == TokenType.White ||
+           type == TokenType.Transparent) return true;
+        return false;
+    }
+    private string GetColor(Token t)
+    {
+        switch (t.Type)
+        {
+            case TokenType.Red: return "Red";
+            case TokenType.Blue: return "Blue";
+            case TokenType.Green: return "Green";
+            case TokenType.Yellow: return "Yellow";
+            case TokenType.Orange: return "Orange";
+            case TokenType.Purple: return "Purple";
+            case TokenType.Black: return "Black";
+            case TokenType.White: return "White";
+            case TokenType.Transparent: return "Transparent";
+        }
+        throw new ParserException("Expected a color typed token", t);
 
+    }
     private bool Check(TokenType type)
     {
         if (IsAtEnd()) return false;

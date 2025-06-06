@@ -7,12 +7,15 @@ using PixelWallE.Common;
 using PixelWallE.Execution;
 public class FunctionCallNode : ExpressionNode
 {
-    public string FunctionName {get;}
-    public List<ExpressionNode> Arguments {get;}
+    public string FunctionName { get; }
+    public Token FunctionNameToken { get; }
 
-    public FunctionCallNode(string functionName, List<ExpressionNode> arguments)
+    public List<ExpressionNode> Arguments { get; }
+
+    public FunctionCallNode(string functionName, Token functionNameToken, List<ExpressionNode> arguments)
     {
         FunctionName = functionName;
+        FunctionNameToken = functionNameToken;
         Arguments = arguments;
     }
     public override string ToString()
@@ -24,11 +27,12 @@ public class FunctionCallNode : ExpressionNode
     }
     public override object Evaluate(Interpreter interpreter)
     {
-        string name = FunctionName.ToLower();
-        if( name == "getactualx")     return interpreter.WallEInstance.X;
-        if( name == "getactualy")     return interpreter.WallEInstance.Y;
-        if( name == "getcanvassize")     return interpreter.Canvas.Height;
-
-        throw new NotImplementedException();
+        List<object> evaluatedArgs = new List<object>();
+        foreach (ExpressionNode argExpr in Arguments)
+        {
+            evaluatedArgs.Add(argExpr.Evaluate(interpreter));
+        }
+        // Delegate to the interpreter to handle the specific function call
+        return interpreter.CallFunction(FunctionName, evaluatedArgs, FunctionNameToken);
     }
 }

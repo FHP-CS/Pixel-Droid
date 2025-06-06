@@ -51,7 +51,7 @@ namespace PixelWallE.Execution
                     if (_labelTable.ContainsKey(labelNode.Name))
                     {
                         ReportError($"Duplicate label definition: '{labelNode.Name}'", labelNode.LabelToken);
-                         throw new RuntimeError($"Duplicate label definition: '{labelNode.Name}'", labelNode.LabelToken);
+                        throw new RuntimeError($"Duplicate label definition: '{labelNode.Name}'", labelNode.LabelToken);
                     }
                     _labelTable[labelNode.Name] = i;
                 }
@@ -165,6 +165,111 @@ namespace PixelWallE.Execution
             // You might want to throw a specific exception here that the UI can catch
             // or have an event that the UI subscribes to for errors.
             // For a console/backend, re-throwing or just logging might be enough.
+        }
+        public object CallFunction(string FunctionName, List<object> args, Token FunctionToken)
+        {
+            string nameLower = FunctionName.ToLowerInvariant();
+            switch (nameLower)
+            {
+                case "getactualx":
+                    {
+                        EnsureArgumentCount(FunctionName, args, 0, FunctionToken);
+                        if (!_isSpawned) throw new RuntimeError("Wall-E must be spawned to get its position.", FunctionToken);
+                        return WallEInstance.X;
+                    }
+                case "getactualy":
+                    {
+                        EnsureArgumentCount(FunctionName, args, 0, FunctionToken);
+                        if (!_isSpawned) throw new RuntimeError("Wall-E must be spawned to get its position.", FunctionToken);
+                        return WallEInstance.Y;
+                    }
+                //added 
+                case "getbrushsize":
+                    {
+                        EnsureArgumentCount(FunctionName, args, 0, FunctionToken);
+                        if (!_isSpawned) throw new RuntimeError("Wall-E must be spawned to get its brush size.", FunctionToken);
+                        return WallEInstance.BrushSize;
+                    }
+                case "getcanvassize":
+                    {
+                        EnsureArgumentCount(FunctionName, args, 0, FunctionToken);
+                        return Canvas.Width;
+                    }
+                case "getcolorcount":
+                    {
+                        EnsureArgumentCount(FunctionName, args, 5, FunctionToken);
+                        string colorname = ExpectString(args[0], FunctionName, "first (color_name)", FunctionToken);
+                        Color color = ParseColorName(colorname, FunctionToken, $"Invalid color name {colorname}.");
+                        int x1 = ExpectInt(args[1], FunctionName, "second (x1)", FunctionToken);
+                        int y1 = ExpectInt(args[2], FunctionName, "second (y1)", FunctionToken);
+                        int x2 = ExpectInt(args[3], FunctionName, "second (x2)", FunctionToken);
+                        int y2 = ExpectInt(args[4], FunctionName, "second (y2)", FunctionToken);
+                        return Canvas.GetColorCount(color, x1,y1,x2,y2);
+                    }
+                case "isbrushcolor":
+                    {
+                        EnsureArgumentCount(FunctionName, args, 1, FunctionToken);
+                        string colorname = ExpectString(args[0], FunctionName, "first (color_name)", FunctionToken);
+                        Color targetcolor = ParseColorName(colorname, FunctionToken, $"Invalid color name {colorname}.");
+                        Color actualcolor = WallEInstance.BrushColor;
+                        return targetcolor == actualcolor ? 1 : 0;
+                    }
+                case "isbrushsize":
+                    {
+                        EnsureArgumentCount(FunctionName, args, 1, FunctionToken);
+                        int targetsize = ExpectInt(args[0], FunctionName, "arg size", FunctionToken);
+                        int actualsize = WallEInstance.BrushSize;
+                        return targetsize == actualsize ? 1 : 0;
+                    }
+                case "iscanvascolor":
+                    {
+                        EnsureArgumentCount(FunctionName, args, 3, FunctionToken);
+                        string colorname = ExpectString(args[0], FunctionName, "first (color_name)", FunctionToken);
+                        Color colorTarget = ParseColorName(colorname, FunctionToken, $"Invalid color name '{colorname}' for IsCanvasColor.");
+
+                        int xpos = ExpectInt(args[1], FunctionName, "second (x)", FunctionToken);
+                        int ypos = ExpectInt(args[2], FunctionName, "third (y)", FunctionToken);
+                        int xCoord = WallEInstance.X + xpos;
+                        int yCoord = WallEInstance.Y + ypos;
+                        if (!(xCoord >= 0 && xCoord < Canvas.Width && yCoord >= 0 && yCoord < Canvas.Height)) return false;//out of bounds
+                        Color actualcolor = Canvas.GetPixel(xCoord, yCoord);
+                        return colorTarget == actualcolor ? 1 : 0;
+                    }
+            }
+            throw new RuntimeError($"Undefined function '{FunctionName}'.", FunctionToken);
+        }
+        private Color ParseColorName(string colorName, Token tokenForError, string errorMessage)
+        {
+            return colorName.ToLowerInvariant() switch
+            {
+                "red" => Colors.Red,
+                "blue" => Colors.Blue,
+                "green" => Colors.Green,
+                "yellow" => Colors.Yellow,
+                "orange" => Colors.Orange,
+                "purple" => Colors.Purple,
+                "black" => Colors.Black,
+                "white" => Colors.White,
+                "transparent" => Colors.Transparent,
+                _ => throw new RuntimeError(errorMessage, tokenForError)
+            };
+        }
+        private string ExpectString(object arg, string funcName, string argDescription, Token funcToken)
+        {
+            if (arg is string str) return str;
+            throw new RuntimeError($"Argument {argDescription} for function '{funcName}' must be a string. Got {arg?.GetType().Name ?? "null"}.", funcToken);
+        }
+        private int ExpectInt(object arg, string funcName, string argDescription, Token funcToken)
+        {
+            if (arg is int intArg) return intArg;
+            throw new RuntimeError($"Argument {argDescription} for function '{funcName}' must be an integer. Got {arg?.GetType().Name ?? "null"}.", funcToken);
+        }
+        private void EnsureArgumentCount(string funcName, List<object> args, int expectedCount, Token funcToken)
+        {
+            if (args.Count != expectedCount)
+            {
+                throw new RuntimeError($"Function '{funcName}' expected {expectedCount} argument(s) but got {args.Count}.", funcToken);
+            }
         }
     }
 }

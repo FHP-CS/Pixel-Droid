@@ -29,6 +29,18 @@ public class Lexer
             { "DrawRectangle", TokenType.DrawRectangle},
             { "GoTo", TokenType.GoTo},
             { "Fill", TokenType.Fill},
+            //Colors
+            { "Red", TokenType.Red},
+            { "Blue", TokenType.Blue},
+            { "Green", TokenType.Green},
+            { "Yellow", TokenType.Yellow},
+            { "Orange", TokenType.Orange},
+            { "Purple", TokenType.Purple},
+            { "Black", TokenType.Black},
+            { "White", TokenType.White},
+            { "Transparent", TokenType.Transparent},
+
+
             
             // TODO: Add more keywords
         };

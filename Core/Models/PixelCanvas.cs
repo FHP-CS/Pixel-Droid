@@ -22,7 +22,7 @@ public class PixelCanvas
         if (width <= 0 || height <= 0)
         {
             // Or handle differently, maybe default to a minimum size?
-            throw new ArgumentOutOfRangeException(nameof(width) + "/" + nameof(height) , "Canvas dimensions must be positive.");
+            throw new ArgumentOutOfRangeException(nameof(width) + "/" + nameof(height), "Canvas dimensions must be positive.");
         }
 
         Width = width;
@@ -75,9 +75,9 @@ public class PixelCanvas
     {
         if (x >= 0 && x < Width && y >= 0 && y < Height)
         {
-             _pixels[x, y] = color;
-             // We will call NotifyChanged() after the *entire* drawing operation (like DrawLine)
-             return true; // Pixel was set
+            _pixels[x, y] = color;
+            // We will call NotifyChanged() after the *entire* drawing operation (like DrawLine)
+            return true; // Pixel was set
         }
         return false; // Pixel out of bounds
     }
@@ -91,6 +91,61 @@ public class PixelCanvas
         }
         // Consistent with SetPixel, out-of-bounds reads can return a default
         return Colors.Transparent; // Or throw? Transparent seems reasonable.
+    }
+    public int GetColorCount(Color color, int x1, int y1, int x2, int y2)
+    {
+        int count =0;
+        if (x1 >= 0 && x1 < Width && y1 >= 0 && y1 < Height &&
+           x2 >= 0 && x2 < Width && y2 >= 0 && y2 < Height)
+        {
+            if (x1 <= x2 && y1 <= y2)
+            {
+                for (int i = x1; i < x2; i++)
+                {
+                    for (int j = y1; j < y2; j++)
+                    {
+                        if(_pixels[i,j] == color) count++;
+                    }
+                }
+                return count;
+            }
+            if( x1 <= x2 && y1 >= y2)
+            {
+                for (int i = x1; i < x2; i++)
+                {
+                    for (int j = y1; j > y2; j--)
+                    {
+                        if(_pixels[i,j] == color) count++;
+                    }
+                }
+                return count;
+            }
+            ///
+            if( x1 >= x2 && y1 >= y2)
+            {
+                for (int i = x1; i > x2; i--)
+                {
+                    for (int j = y1; j > y2; j--)
+                    {
+                        if(_pixels[i,j] == color) count++;
+                    }
+                }
+                return count;
+            }
+            if( x1 >= x2 && y1 <= y2)
+            {
+                for (int i = x1; i > x2; i--)
+                {
+                    for (int j = y1; j < y2; j++)
+                    {
+                        if(_pixels[i,j] == color) count++;
+                    }
+                }
+                return count;
+            }
+            
+        }
+        return -1; //error 
     }
 
     // Helper to get the raw pixel data (useful for rendering)

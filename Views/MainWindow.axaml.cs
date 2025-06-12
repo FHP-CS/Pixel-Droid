@@ -28,14 +28,17 @@ public partial class MainWindow : Window
     private readonly List<string> _keywords = new List<string>
     {
         // Commands
-        "Spawn", "Color", "Size", "DrawLine",
-        "DrawCircle", "DrawRectangle", "Fill",
-        "GoTo",
+        "Spawn(", "Color(", "Size(", "DrawLine(",
+        "DrawCircle(", "DrawRectangle(", "Fill()",
+        "GoTo [",
+        "[]",
         // Functions (remove parentheses for keyword completion)
-        "GetActualX", "GetActualY", "GetCanvasSize", "GetColorCount",
-        "IsBrushColor", "IsBrushSize", "IsCanvasColor",
+        "GetActualX()", "GetActualY()", "GetCanvasSize()", "GetColorCount(",
+        "IsBrushColor(", "IsBrushSize(", "IsCanvasColor(",
+        "()", ")",
         // Colors (could be separate category later)
-        "Red", "Blue", "Green", "Yellow", "Orange", "Purple", "Black", "White", "Transparent"
+        "Red", "Blue", "Green", "Yellow", "Orange", "Purple", "Black", "White", "Transparent",
+        "\"Red\"" , "\"Blue\"", "\"Green\"", "\"Yellow\"", "\"Orange\"", "\"Purple\"", "\"Black\"", "\"White\"", "\"Transparent\""
     };
 
     public MainWindow()

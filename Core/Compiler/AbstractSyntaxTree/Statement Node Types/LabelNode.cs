@@ -4,11 +4,11 @@ using PixelWallE.Execution;
 public class LabelNode : StatementNode
 {
     public string Name {get;}
-    public Token LabelToken { get; } 
+    public override Token Token {get; }
     public LabelNode(Token labelToken)
     {
          Name = labelToken.Lexeme;
-         LabelToken = labelToken;
+         Token = labelToken;
     }
     public override string ToString()=> $"{Name}:";
     public override void Execute(Interpreter Interpreter){}

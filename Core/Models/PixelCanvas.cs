@@ -100,9 +100,9 @@ public class PixelCanvas
         {
             if (x1 <= x2 && y1 <= y2)
             {
-                for (int i = x1; i < x2; i++)
+                for (int i = x1; i <= x2; i++)
                 {
-                    for (int j = y1; j < y2; j++)
+                    for (int j = y1; j <= y2; j++)
                     {
                         if(_pixels[i,j] == color) count++;
                     }
@@ -111,9 +111,9 @@ public class PixelCanvas
             }
             if( x1 <= x2 && y1 >= y2)
             {
-                for (int i = x1; i < x2; i++)
+                for (int i = x1; i <= x2; i++)
                 {
-                    for (int j = y1; j > y2; j--)
+                    for (int j = y1; j >= y2; j--)
                     {
                         if(_pixels[i,j] == color) count++;
                     }
@@ -123,9 +123,9 @@ public class PixelCanvas
             ///
             if( x1 >= x2 && y1 >= y2)
             {
-                for (int i = x1; i > x2; i--)
+                for (int i = x1; i >= x2; i--)
                 {
-                    for (int j = y1; j > y2; j--)
+                    for (int j = y1; j >= y2; j--)
                     {
                         if(_pixels[i,j] == color) count++;
                     }
@@ -134,9 +134,9 @@ public class PixelCanvas
             }
             if( x1 >= x2 && y1 <= y2)
             {
-                for (int i = x1; i > x2; i--)
+                for (int i = x1; i >= x2; i--)
                 {
-                    for (int j = y1; j < y2; j++)
+                    for (int j = y1; j <= y2; j++)
                     {
                         if(_pixels[i,j] == color) count++;
                     }

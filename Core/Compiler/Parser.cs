@@ -1,6 +1,5 @@
 // Parser/Parser.cs
 using PixelWallE.Common;
-using PixelWallE.Runtime.Commands;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -141,7 +140,7 @@ public class Parser
     // --- Statement Parsing Methods ---
     private StatementNode ParseGoToStatement()
     {
-        Consume(TokenType.GoTo, "Expected GoTo declaration.");
+        Token GoTo = Consume(TokenType.GoTo, "Expected GoTo declaration.");
         Consume(TokenType.LBracket, "Expected [ after GoTo.");
         Token label = Consume(TokenType.Identifier, "Expected label name inside '[]' for GoTo.");
         Consume(TokenType.RBracket, "Expected ] after Label.");
@@ -149,12 +148,23 @@ public class Parser
         ExpressionNode condition = ParseExpression();
         Consume(TokenType.RParen, "Expected ) after Condition.");
 
-        return new GoToNode(label, condition);
+        return new GoToNode(label, condition, GoTo);
     }
     private StatementNode ParseLabelStatement()
     {
         Token labelNameToken = Consume(TokenType.Identifier, "Expected label. ");
-        return new LabelNode(labelNameToken);
+        // if (ValidLabel(labelNameToken))
+            return new LabelNode(labelNameToken);
+        // throw new ParserException("Label must contain at least one symbol of '-' or '_' to be validated. ", labelNameToken);
+
+    }
+    private bool ValidLabel(Token labelT)
+    {
+        for (int i = 0; i < labelT.Lexeme.Length; i++)
+        {
+            if (labelT.Lexeme[i] == '_' || labelT.Lexeme[i] == '-') return true;
+        }
+        return false;
     }
     private AssignmentNode ParseAssignmentStatement()
     {
@@ -222,7 +232,7 @@ public class Parser
         ExpressionNode radius = ParseExpression();
         Consume(TokenType.RParen, "Expected ')' after radius.");
 
-        return new DrawCircleNode(radius);
+        return new DrawCircleNode(radius, keywordToken);
     }
     private StatementNode ParseDrawRectangleStatement()
     {
@@ -232,14 +242,14 @@ public class Parser
         Consume(TokenType.Comma, "Expected ',' after width.");
         ExpressionNode heigth = ParseExpression();
         Consume(TokenType.RParen, "Expected ')' after heigth.");
-        return new DrawRectangleNode(width, heigth);
+        return new DrawRectangleNode(width, heigth, keywordToken);
     }
     private StatementNode ParseFillStatement()
     {
         Token keywordToken = Advance(); // Consume 'Fill'
         Consume(TokenType.LParen, "Expected '(' after Fill.");
         Consume(TokenType.RParen, "Expected ')' after (.");
-        return new FillNode();
+        return new FillNode(keywordToken);
 
     }
 

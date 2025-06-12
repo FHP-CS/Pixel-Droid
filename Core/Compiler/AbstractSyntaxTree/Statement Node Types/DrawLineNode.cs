@@ -6,9 +6,7 @@ public class DrawLineNode : StatementNode
     public ExpressionNode dirX { get; }
     public ExpressionNode dirY { get; }
     public ExpressionNode Distance { get; }
-    public Token Token { get; }
-
-
+    public override Token Token {get; }
     public DrawLineNode(ExpressionNode dir_x, ExpressionNode dir_y, ExpressionNode _distance, Token token)
     {
         dirX = dir_x;

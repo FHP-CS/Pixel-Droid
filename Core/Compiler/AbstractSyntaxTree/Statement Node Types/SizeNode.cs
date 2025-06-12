@@ -5,10 +5,11 @@ using PixelWallE.Execution;
 public class SizeNode : StatementNode
 {
     public ExpressionNode SizeExpression { get; }
-    public Token SizeToken;
-    public SizeNode(Token sizeToken, ExpressionNode sizeExpression)
+    public override Token Token { get; }
+
+    public SizeNode(Token token, ExpressionNode sizeExpression)
     {
-        SizeToken = sizeToken;
+        Token = token;
         SizeExpression = sizeExpression;
     }
     public override string ToString() => $"Size({SizeExpression})";
@@ -18,7 +19,7 @@ public class SizeNode : StatementNode
         if (SizeExpression.Evaluate(Interpreter) is int size)
             Interpreter.WallEInstance.SetSize(size);
         else
-            throw new RuntimeError($"Argument ({SizeExpression} must be integers", SizeToken);
+            throw new RuntimeError($"Argument ({SizeExpression} must be integers", Token);
 
 
     }

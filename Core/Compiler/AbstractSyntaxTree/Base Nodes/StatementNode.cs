@@ -1,9 +1,11 @@
 // Represents a statement (a line of code that performs an action)
 using System;
 using PixelWallE.Execution;
+using PixelWallE.Common;
 
 public abstract class StatementNode : AstNode
 {
+    public abstract Token Token {get;}
     public sealed override object Evaluate(Interpreter interpreter)
     {
         throw new NotImplementedException("Statement nodes are executed, not evaluated to a value.");

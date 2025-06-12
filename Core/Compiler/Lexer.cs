@@ -90,8 +90,10 @@ public class Lexer
             case '+': AddToken(TokenType.Plus); break;
             case '-': AddToken(TokenType.Minus); break;
             case '*':
-                if (Peek() == '*')
+                if (Peek() == '*'){
                     AddToken(TokenType.Power);//**
+                    Advance();
+                    }
                 else
                     AddToken(TokenType.Multiply);//*
                 break;
@@ -182,6 +184,8 @@ public class Lexer
             // TODO: Add comments (e.g., // or #)
 
             default:
+                if(IsDigit(c) && IsAlpha(Peek())) 
+                    throw new LexerException($"Variables or labels shall not start with a number, if you meant to multiply then use the expression ** after the number: '{c}'", _line, _column - 1);
                 if (IsDigit(c))
                 {
                     Number();
@@ -193,7 +197,7 @@ public class Lexer
                 else
                 {
                     // Report error but don't add error token for now
-                    throw new LexerException($"Unexpected character: '{c}'", _line, _column - 1);
+                    throw new LexerException($"Unexpected character: '{c}'  What are ya doing mate?", _line, _column - 1);
                     // AddToken(TokenType.Unknown, c.ToString());
                 }
                 break;
@@ -216,6 +220,8 @@ public class Lexer
 
         {
             // (for variables/labels later)
+            if(text[0] == '-') throw new LexerException($"Variable or Label shall not start with the symbol (-)! What are ya doing mate?", _line, _column - 1);
+            if(text[0] == '_') throw new LexerException($"Variable or Label shall not start with the symbol (_)! What are ya doing mate?", _line, _column - 1);
             AddToken(TokenType.Identifier);
         }
 

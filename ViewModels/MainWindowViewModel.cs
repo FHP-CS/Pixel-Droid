@@ -6,11 +6,8 @@ using CommunityToolkit.Mvvm.Input;          // Required for RelayCommand
 using PixelWallE.Models; // Your models namespace
 using System.Diagnostics;
 using System.Threading.Tasks;
-
 using PixelWallE.Parser;
 using PixelWallE.Execution;
-
-using PixelWallE.Runtime.Commands;
 using PixelWallE.Common;
 using System.Text;
 
@@ -42,6 +39,8 @@ public partial class MainWindowViewModel : ObservableObject
     // **** ADD THIS PROPERTY ****
     [ObservableProperty]
     public string _statusText = "Ready"; // Initialize with default status
+    public string _barColor = "White"; // Initialize with default status
+
     // **** END OF ADDITION ****
 
     public bool IsWallESpawned => WallEX >= 0 && WallEY >= 0;
@@ -56,7 +55,7 @@ public partial class MainWindowViewModel : ObservableObject
                    Color(Black)
                    Size(1)
                    DrawLine(1, 0, 10)
-                   Color(Blue)
+                   Color("Blue")
                    Size(3)
                    DrawLine(0, 1, 10)
                    Color(Red)
@@ -132,6 +131,17 @@ public partial class MainWindowViewModel : ObservableObject
         }
         StatusText = errorReport.ToString().Trim(); // Show errors in status bar
     }
+    private void ReportRuntimeErrors(string phase, List<RuntimeError> errors)
+    {
+        var errorReport = new StringBuilder();
+        errorReport.AppendLine($"{phase}:");
+        foreach (var error in errors)
+        {
+            errorReport.AppendLine($"- {error}");
+            Debug.WriteLine(error.ToString());
+        }
+        StatusText = errorReport.ToString().Trim(); // Show errors in status bar
+    }
 
     [RelayCommand]
     private void ExecuteCode()
@@ -143,10 +153,6 @@ public partial class MainWindowViewModel : ObservableObject
         // 1. Lexing
         var lexer = new Lexer(CodeText);
         (List<Token> tokens, List<ParsingError> lexerErrors) = lexer.Tokenize();
-        for (int i = 0; i < tokens.Count; i++)
-        {
-            StatusText = $"{tokens[i].Type}";
-        }
 
         if (lexerErrors.Any())
         {
@@ -199,22 +205,23 @@ public partial class MainWindowViewModel : ObservableObject
         // Debug.WriteLine("--- Validation Successful ---");
 
         // 4. Interpretation (Execution)
-        // StatusText = "Executing...";
+        StatusText = "Executing...";
         var interpreter = new Interpreter(_pixelCanvas, _wallE);
 
         // IMPORTANT: Use the *existing* _wallE and _pixelCanvas instances.
         // Do NOT create new ones here unless specifically intended (like after resize).
         // The PDF states execution continues on the modified canvas.
-        ParsingError? runtimeError = interpreter.Run(source);
+        RuntimeError? runtimeError = interpreter.Run(source);
 
         if (runtimeError != null)
         {
-            ReportErrors("Runtime Error", new List<ParsingError> { runtimeError });
+            
+            ReportRuntimeErrors("Runtime Error", new List<RuntimeError> { runtimeError });
             // Status text is already set by ReportErrors
         }
         else
         {
-            // StatusText = "Execution finished successfully.";
+            StatusText = "Execution finished successfully.";
             // Make sure the canvas updates visually after execution
             PixelCanvas.NotifyChanged(); // Force UI update
             UpdateWallEPosition();      // Update Wall-E pos in VM if displayed

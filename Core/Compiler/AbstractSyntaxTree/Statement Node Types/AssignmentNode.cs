@@ -6,19 +6,19 @@ using PixelWallE.Execution;
 // var <- expression
 public class AssignmentNode : StatementNode
 {
-    public Token VariableNameToken { get; }
+    public override Token Token { get;}
     public ExpressionNode ValueExpression { get; }
 
-    public AssignmentNode(Token variableNameToken, ExpressionNode valueExpression)
+    public AssignmentNode(Token token, ExpressionNode valueExpression)
     {
-        VariableNameToken = variableNameToken;
+        Token = token;
         ValueExpression = valueExpression;
     }
-    public override string ToString() => $"{VariableNameToken.Lexeme} <- {ValueExpression}";
+    public override string ToString() => $"{Token.Lexeme} <- {ValueExpression}";
     public override void Execute(Interpreter Interpreter)
     {
        object value = ValueExpression.Evaluate(Interpreter);
-       Interpreter.SetVariable(VariableNameToken.Lexeme, value);
+       Interpreter.SetVariable(Token.Lexeme, value);
     }
 
 }

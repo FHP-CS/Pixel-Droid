@@ -4,12 +4,12 @@ using PixelWallE.Common;
 using PixelWallE.Execution;
 public class ColorNode : StatementNode
 {
-    public Token ColorToken { get; }
+    public override Token Token { get; }
     public ExpressionNode ColorExpression { get; } // Could be a StringLiteralNode or a variable holding a color string
 
-    public ColorNode(Token colorToken, ExpressionNode colorExpression)
+    public ColorNode(Token token, ExpressionNode colorExpression)
     {
-        ColorToken = colorToken;
+        Token = token;
         ColorExpression = colorExpression;
     }
     public override string ToString() => $"Color({ColorExpression})";
@@ -18,7 +18,7 @@ public class ColorNode : StatementNode
         if (ColorExpression.Evaluate(Interpreter) is string color)
             Interpreter.WallEInstance.SetColor(color);
         else
-            throw new RuntimeError($"Argument ({ColorExpression} must be a string", ColorToken);
+            throw new RuntimeError($"Argument ({ColorExpression} must be a string", Token);
 
 
     }

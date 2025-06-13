@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using System.Linq; // For LINQ methods like Any, Where, Select, All
 using AvaloniaEdit.Rendering; // Namespace for LineNumberMargin
 using Avalonia.Media;
-using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage; // For the new FilePicker API
 using TextMateSharp.Grammars;

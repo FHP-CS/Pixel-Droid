@@ -72,7 +72,7 @@ namespace PixelWallE.Execution
                 // Try to get a token from the first non-Spawn statement for error reporting
                 Token errorToken = _statements[firstIndexExecutable].Token;
                 ReportError("The first executable command in the script must be 'Spawn'.", errorToken);
-                throw new RuntimeError("Cannot execute commands before Wall-E is successfully spawned.", errorToken);
+                return new RuntimeError("Cannot execute commands before Wall-E is successfully spawned.", errorToken);
             }
             // Main execution loop
             while (_programCounter < _statements.Count)
@@ -82,7 +82,7 @@ namespace PixelWallE.Execution
                 if (!_isSpawned && !(currentStatement is SpawnNode) && !(currentStatement is LabelNode))
                 {
                     Token errorToken = GetFirstTokenOfStatement(currentStatement);
-                    throw new RuntimeError("Wall-E must be spawned using 'Spawn(x,y)' before other commands can be executed.", errorToken);
+                   return  new RuntimeError("Wall-E must be spawned using 'Spawn(x,y)' before other commands can be executed.", errorToken);
                 }
                 try
                 {

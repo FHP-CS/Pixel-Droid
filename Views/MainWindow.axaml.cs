@@ -11,6 +11,9 @@ using System.Collections.Generic;
 using System.Linq; // For LINQ methods like Any, Where, Select, All
 using AvaloniaEdit.Rendering; // Namespace for LineNumberMargin
 using Avalonia.Media;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Platform.Storage; // For the new FilePicker API
 using TextMateSharp.Grammars;
 using AvaloniaEdit.TextMate;        // Needed for Brushes.Transparent
 
@@ -38,7 +41,7 @@ public partial class MainWindow : Window
         "()", ")",
         // Colors (could be separate category later)
         "Red", "Blue", "Green", "Yellow", "Orange", "Purple", "Black", "White", "Transparent",
-        "\"Red\"" , "\"Blue\"", "\"Green\"", "\"Yellow\"", "\"Orange\"", "\"Purple\"", "\"Black\"", "\"White\"", "\"Transparent\""
+        @"""Red""" , @"""Blue""", @"""Green""", @"""Yellow""", @"""Orange""", @"""Purple""", @"""Black""", @"""White""", @"""Transparent"""
     };
 
     public MainWindow()
@@ -61,6 +64,7 @@ public partial class MainWindow : Window
         {
             System.Diagnostics.Debug.WriteLine("Error: CodeEditor control not found!");
         }
+
     }
     private void MinimizeWindow(object sender, RoutedEventArgs e)
     {
@@ -68,7 +72,7 @@ public partial class MainWindow : Window
     }
     private void MaximizeWindow(object sender, RoutedEventArgs e)
     {
-        if(this.WindowState == WindowState.Maximized)
+        if (this.WindowState == WindowState.Maximized)
             this.WindowState = WindowState.Normal;
         else
             this.WindowState = WindowState.Maximized;
@@ -89,8 +93,26 @@ public partial class MainWindow : Window
             _codeEditor.Document.Text = _viewModel.CodeText ?? "";
             _codeEditor.Document.TextChanged += CodeEditor_TextChanged;
 
+            // Subscribe to the ViewModel's event.
+                _viewModel.CodeHasBeenLoaded -= ViewModel_CodeHasBeenLoaded; // Defensive unsubscribe
+                _viewModel.CodeHasBeenLoaded += ViewModel_CodeHasBeenLoaded; // Subscribe
             // --- Add Spacer Margin ---
             AddSpacerToLeftMargin(_codeEditor.TextArea, 10); // Add a 10px spacer
+        }
+    }
+    private void ViewModel_CodeHasBeenLoaded(string newCode)
+    {
+        if (_codeEditor != null)
+        {
+            // Temporarily unsubscribe from the editor's TextChanged event
+            // to prevent it from immediately re-updating the ViewModel
+            // while we are programmatically setting the editor's text.
+            _codeEditor.Document.TextChanged -= CodeEditor_TextChanged;
+
+            _codeEditor.Document.Text = newCode; // Set the TextEditor's content
+
+            // Re-subscribe so that user typing will again update the ViewModel.
+            _codeEditor.Document.TextChanged += CodeEditor_TextChanged;
         }
     }
     private void AddSpacerToLeftMargin(TextArea textArea, double spacerWidth)
@@ -124,15 +146,16 @@ public partial class MainWindow : Window
                 }
                 else
                 {
-                     // Fallback: Add at the end if index wasn't found (shouldn't happen often)
-                     textArea.LeftMargins.Add(spacer);
-                     System.Diagnostics.Debug.WriteLine("Spacer added (LineNumberMargin index not found, added at end)");
+                    // Fallback: Add at the end if index wasn't found (shouldn't happen often)
+                    textArea.LeftMargins.Add(spacer);
+                    System.Diagnostics.Debug.WriteLine("Spacer added (LineNumberMargin index not found, added at end)");
                 }
             }
         }
-         else {
-             System.Diagnostics.Debug.WriteLine("LineNumberMargin not found in LeftMargins.");
-         }
+        else
+        {
+            System.Diagnostics.Debug.WriteLine("LineNumberMargin not found in LeftMargins.");
+        }
     }
 
     // Update ViewModel when text changes in the editor (Corrected signature)
@@ -143,6 +166,15 @@ public partial class MainWindow : Window
             _viewModel.CodeText = _codeEditor.Document.Text;
         }
     }
+    // IMPORTANT: Unsubscribe from events when the window is closed.
+        protected override void OnClosed(EventArgs e)
+        {
+            if (_viewModel != null)
+            {
+                _viewModel.CodeHasBeenLoaded -= ViewModel_CodeHasBeenLoaded; // Unsubscribe
+            }
+            base.OnClosed(e);
+        }
     // --- Autocompletion Logic ---
 
     private void TextArea_TextEntering(object? sender, TextInputEventArgs e)

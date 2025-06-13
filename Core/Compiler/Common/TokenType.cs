@@ -12,12 +12,11 @@ public enum TokenType
     DrawRectangle,
     GoTo,
     Fill,
-    // TODO: Add keywords for DrawCircle, DrawRectangle, Fill, var assignment ('<-'), functions, GoTo, labels...
 
     // Literals
-    Number,        // e.g., 10, 5, -1
-    String,        // e.g., "Red", "Blue" (aunque en el PDF no usan comillas, lo trataremos como un tipo específico)
-    Identifier,    // e.g., variable names, labels
+    Number,        
+    String,        
+    Identifier,    // Variables and Labels and FunctionCalls
 
     //COlors
 
@@ -37,7 +36,6 @@ public enum TokenType
     Minus,         // -
     Multiply,      // *
     Divide,        // /
-    Assignment,    // <- 
     Power,         // **
     Modulo,        // %
     AND,           // &&
@@ -55,11 +53,12 @@ public enum TokenType
     LBracket,      // [
     RBracket,      // ]
     Comma,         // ,
-    // TODO: Add operators: Arrow (<-), Plus, Minus, Multiply, Divide, Power, Modulo, Comparators (==, >=, etc.), Logical (&&, ||)
+    Assignment,    // <- 
+
 
     // Control
     EOL,           // End Of Line (o NewLine)
     EOF,           // End Of File
-    Unknown,       // Caracteres no reconocidos
-    Error          // Token que representa un error léxico
+    Unknown,       // what are you doing? 
+    Error          // Lexical Error Token
 }

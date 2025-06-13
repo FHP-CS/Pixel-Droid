@@ -27,8 +27,8 @@
    <Grid RowDefinitions="Auto,*,Auto" Background="{DynamicResource ResourceKey=PrimaryBackgroundGradient}">
         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Left" Spacing="10" Margin="0,0,10,0">
                 <!-- Add Load/Save later -->
-                <Button  Content="Save" Background="{DynamicResource ResourceKey=ButtonGradient}"/> 
-                <Button  Content="Load" Background="{DynamicResource ResourceKey=ButtonGradient}"/> 
+                <Button  Content="Save" Command="{Binding SaveCodeAsyncCommand}" Background="{DynamicResource ResourceKey=ButtonGradient}"/> 
+                <Button  Content="Load" Command="{Binding LoadCodeAsyncCommand}" Background="{DynamicResource ResourceKey=ButtonGradient}"/> 
         </StackPanel>
         <StackPanel Grid.Row="0"  HorizontalAlignment="Center" Orientation="Horizontal" Spacing="10" Margin="0,0,10,0">
             <TextBlock Text="Canvas Size:" VerticalAlignment="Center"/>

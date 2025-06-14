@@ -70,10 +70,10 @@ public class WallE
             "transparent" => Colors.Transparent,
             _ => Colors.Transparent // Default or error? Let's default to transparent
         };
-         Debug.WriteLine($"Set Brush Color to: {BrushColor}");
+        Debug.WriteLine($"Set Brush Color to: {BrushColor}");
     }
 
-     /// <summary>
+    /// <summary>
     /// Sets the brush size (thickness). Must be odd.
     /// </summary>
     /// <param name="k">Desired size.</param>
@@ -82,7 +82,7 @@ public class WallE
         if (k <= 0) k = 1; // Minimum size is 1
         if (k % 2 == 0) k--; // If even, use k-1
         BrushSize = k;
-         Debug.WriteLine($"Set Brush Size to: {BrushSize}");
+        Debug.WriteLine($"Set Brush Size to: {BrushSize}");
     }
 
 
@@ -104,18 +104,17 @@ public class WallE
         if (distance <= 0) return false; // Drawing a line of 0 length does nothing, successfully.
         if (BrushColor == Colors.Transparent)
         {
-             // Move Wall-E without drawing
-             X += dirX * distance;
-             Y += dirY * distance;
-             Debug.WriteLine($"Moved Wall-E (Transparent Brush) to ({X}, {Y})");
-             // Note: We might need to clamp X,Y to canvas bounds if movement can go OOB
-             return true;
+            // Move Wall-E without drawing
+            X += dirX * distance;
+            Y += dirY * distance;
+            Debug.WriteLine($"Moved Wall-E (Transparent Brush) to ({X}, {Y})");
+            // Note: We might need to clamp X,Y to canvas bounds if movement can go OOB
+            return true;
         }
 
         Debug.WriteLine($"Drawing Line: Dir=({dirX},{dirY}), Dist={distance}, Start=({X},{Y}), Color={BrushColor}, Size={BrushSize}");
-
-        int currentX = X;
-        int currentY = Y;
+        // int currentX = X;
+        // int currentY = Y;
         bool pixelsDrawn = false;
 
         // Draw points along the line
@@ -126,13 +125,18 @@ public class WallE
             int stepY = Y + dirY * i;
 
             // Draw the brush square centered at (stepX, stepY)
-            pixelsDrawn |= DrawBrushAt(stepX, stepY);
+            if (i == 0 && distance > 1)//first step 
+                _canvas.SetPixel(stepX, stepY, BrushColor);
+            else
+            {
+                pixelsDrawn |= DrawBrushAt(stepX, stepY);
+            }
         }
 
         // Special case: The last point needs to be drawn too if distance > 0
         int finalX = X + dirX * distance;
         int finalY = Y + dirY * distance;
-        pixelsDrawn |= DrawBrushAt(finalX, finalY);
+        // pixelsDrawn |= DrawBrushAt(finalX, finalY);
 
 
         // Update Wall-E's position to the end of the line
@@ -162,7 +166,7 @@ public class WallE
                 drawn |= _canvas.SetPixel(centerX + dx, centerY + dy, BrushColor);
             }
         }
-         // Small logging for brush application if needed
+        // Small logging for brush application if needed
         // if (drawn) Debug.WriteLine($"  - Brush applied around ({centerX}, {centerY})");
         return drawn;
     }

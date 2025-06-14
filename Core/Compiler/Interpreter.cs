@@ -51,7 +51,7 @@ namespace PixelWallE.Execution
                     if (_labelTable.ContainsKey(labelNode.Name))
                     {
                         ReportError($"Duplicate label definition: '{labelNode.Name}'", labelNode.Token);
-                        throw new RuntimeError($"Duplicate label definition: '{labelNode.Name}'", labelNode.Token);
+                        return new RuntimeError($"Duplicate label definition: '{labelNode.Name}'", labelNode.Token);
                     }
                     _labelTable[labelNode.Name] = i;
                 }

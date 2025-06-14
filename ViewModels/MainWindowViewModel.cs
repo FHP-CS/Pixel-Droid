@@ -71,15 +71,20 @@ public partial class MainWindowViewModel : ObservableObject
         _wallE = new WallE(_pixelCanvas);
         CodeText = """
                    Spawn(5, 5)
-                   Color(Black)
-                   Size(1)
-                   DrawLine(1, 0, 10)
-                   Color("Blue")
-                   Size(3)
-                   DrawLine(0, 1, 10)
-                   Color(Red)
-                   Size(5)
-                   DrawLine(-1, -1, 8)
+                   Color(Blue)
+                   s<- GetCanvasSize()
+                   i<- 0
+                   while1
+                   j<- 0
+   
+                   while2
+                   Spawn(i,j)
+                   DrawLine(1,1,1)
+                   j<- j+1
+
+                   GoTo [while2] (j<s)
+                   i<- i+1
+                   GoTo [while1] (i<s)
                    """;
         UpdateWallEPosition();
         SetStatus("Application loaded. Ready.", StatusMessageType.Info); // Initialize with a status

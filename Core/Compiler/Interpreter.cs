@@ -29,7 +29,6 @@ namespace PixelWallE.Execution
         //Methods
         public void Reset()
         {
-            Canvas.Clear(Colors.White);
             WallEInstance = new WallE(Canvas);
             _isSpawned = false;
         }
@@ -82,7 +81,7 @@ namespace PixelWallE.Execution
                 if (!_isSpawned && !(currentStatement is SpawnNode) && !(currentStatement is LabelNode))
                 {
                     Token errorToken = GetFirstTokenOfStatement(currentStatement);
-                   return  new RuntimeError("Wall-E must be spawned using 'Spawn(x,y)' before other commands can be executed.", errorToken);
+                    return new RuntimeError("Wall-E must be spawned using 'Spawn(x,y)' before other commands can be executed.", errorToken);
                 }
                 try
                 {
@@ -242,19 +241,14 @@ namespace PixelWallE.Execution
         }
         private Color ParseColorName(string colorName, Token tokenForError, string errorMessage)
         {
-            return colorName.ToLowerInvariant() switch
+            string colorString = colorName.ToLowerInvariant();
+            if (WallEInstance._Colors.TryGetValue(colorString, out Color color))
             {
-                "red" => Colors.Red,
-                "blue" => Colors.Blue,
-                "green" => Colors.Green,
-                "yellow" => Colors.Yellow,
-                "orange" => Colors.Orange,
-                "purple" => Colors.Purple,
-                "black" => Colors.Black,
-                "white" => Colors.White,
-                "transparent" => Colors.Transparent,
-                _ => throw new RuntimeError(errorMessage, tokenForError)
-            };
+                Debug.WriteLine($"returning color {color}");
+                return color;
+            }
+            else
+                throw new RuntimeError(errorMessage, tokenForError);
         }
         private string ExpectString(object arg, string funcName, string argDescription, Token funcToken)
         {

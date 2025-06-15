@@ -1,6 +1,7 @@
 // Models/WallE.cs
 using Avalonia.Media;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics; // For Debug.WriteLine
 
 namespace PixelWallE.Models;
@@ -54,23 +55,70 @@ public class WallE
     /// Sets the drawing color.
     /// </summary>
     /// <param name="colorName">Name of the color (e.g., "Red", "Blue").</param>
-    public void SetColor(string colorName) // We'll need a way to parse color names later
+    /// 
+    public Dictionary<string, Color> _Colors = new Dictionary<string, Color>{
+        {"red",Colors.Red},
+        {"blue",Colors.Blue},
+        {"green",Colors.Green},
+        {"yellow",Colors.Yellow},
+        {"orange",Colors.Orange},
+        {"purple",Colors.Purple},
+        {"black",Colors.Black},
+        {"white",Colors.White},
+        {"transparent",Colors.Transparent},
+        ///
+        /// 
+        {"pink",Colors.Pink},
+        {"gray",Colors.Gray},
+        {"grey",Colors.Gray},
+        {"violet",Colors.Violet},
+        {"brown",Colors.Brown},
+
+    };
+    public bool SetColor(string colorName) // We'll need a way to parse color names later
     {
         // Basic color mapping - expand this!
-        BrushColor = colorName.ToLowerInvariant() switch
-        {
-            "red" => Colors.Red,
-            "blue" => Colors.Blue,
-            "green" => Colors.Green,
-            "yellow" => Colors.Yellow,
-            "orange" => Colors.Orange,
-            "purple" => Colors.Purple,
-            "black" => Colors.Black,
-            "white" => Colors.White,
-            "transparent" => Colors.Transparent,
-            _ => Colors.Transparent // Default or error? Let's default to transparent
-        };
+        string color = colorName.ToLower();
+        if (!_Colors.TryGetValue(color, out Color _brushColor)) return false;
+
+        BrushColor = _brushColor;
         Debug.WriteLine($"Set Brush Color to: {BrushColor}");
+        return true;
+
+
+    }
+    public bool ValidPos(int x, int y)
+    {
+        if (x >= 0 && x <= _canvas.Height && y >= 0 && y <= _canvas.Height) return true;
+        return false;
+    }
+    public bool Fill()
+    {
+        Color fillColor = BrushColor;
+        Color targetColor = _canvas.GetPixel(X, Y);
+        if (targetColor == fillColor) return true;
+
+        flood(X, Y, targetColor, fillColor);
+        return true;
+    }
+
+    public void flood(int x, int y, Color targetColor, Color fillColor)
+    {
+        Color pixColor = _canvas.GetPixel(x, y);
+        if (pixColor == targetColor) _canvas.SetPixel(x, y, fillColor);
+        else return;
+
+        int[] downPixel = { x, y + 1 };
+        int[] upPixel = { x, y - 1 };
+        int[] rightPixel = { x + 1, y };
+        int[] leftPixel = { x - 1, y };
+
+
+        if (ValidPos(downPixel[0], downPixel[1])) flood(downPixel[0], downPixel[1], targetColor, fillColor);
+        if (ValidPos(upPixel[0], upPixel[1])) flood(upPixel[0], upPixel[1], targetColor, fillColor);
+        if (ValidPos(rightPixel[0], rightPixel[1])) flood(rightPixel[0], rightPixel[1], targetColor, fillColor);
+        if (ValidPos(leftPixel[0], leftPixel[1])) flood(leftPixel[0], leftPixel[1], targetColor, fillColor);
+
     }
 
     /// <summary>
@@ -93,6 +141,43 @@ public class WallE
     /// <param name="dirY">Y direction (-1, 0, 1).</param>
     /// <param name="distance">Length of the line in pixels.</param>
     /// <returns>True if drawing happened, false otherwise (e.g., invalid direction).</returns>
+    /// 
+    public bool DrawCircle(int r)
+    {
+        int[] Vt = new int[] { X, Y }; //Vector for traslation 
+        //centre
+        int cx = 0;   //                     0,-r
+        int cy = 0;   //                     |
+        //Variables  //           -r,0  -----|-----  r,0
+        double x = 0;   //                      |
+        double y = -r;  //                      0,r
+        if (r < 0)
+        {
+            Debug.WriteLine($"Error: The radius {r} is less than 0.");
+            return false; // Invalid direction
+        }
+
+        while (x < -y)
+        {
+            double yMid = y + 0.5;
+            if (x * x + yMid * yMid > r * r) y++;
+
+            _canvas.SetPixel((int)(cx + x + Vt[0]), (int)(cy + y + Vt[1]), BrushColor);
+            _canvas.SetPixel((int)(cx - x + Vt[0]), (int)(cy + y + Vt[1]), BrushColor);
+            _canvas.SetPixel((int)(cx + x + Vt[0]), (int)(cy - y + Vt[1]), BrushColor);
+            _canvas.SetPixel((int)(cx - x + Vt[0]), (int)(cy - y + Vt[1]), BrushColor);
+
+            _canvas.SetPixel((int)(cx + y + Vt[0]), (int)(cy + x + Vt[1]), BrushColor);
+            _canvas.SetPixel((int)(cx + y + Vt[0]), (int)(cy - x + Vt[1]), BrushColor);
+            _canvas.SetPixel((int)(cx - y + Vt[0]), (int)(cy + x + Vt[1]), BrushColor);
+            _canvas.SetPixel((int)(cx - y + Vt[0]), (int)(cy - x + Vt[1]), BrushColor);
+
+            x++;
+        }
+        return true;
+
+
+    }
     public bool DrawLine(int dirX, int dirY, int distance)
     {
         // Validate direction

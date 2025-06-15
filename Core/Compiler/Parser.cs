@@ -229,10 +229,14 @@ public class Parser
     {
         Token keywordToken = Advance(); // Consume 'DrawCircle'
         Consume(TokenType.LParen, "Expected '(' after DrawCircle.");
+        ExpressionNode dirx = ParseExpression();
+        Consume(TokenType.Comma, "Expected ',' after dirX.");
+        ExpressionNode diry = ParseExpression();
+        Consume(TokenType.Comma, "Expected ',' after dirY.");
         ExpressionNode radius = ParseExpression();
         Consume(TokenType.RParen, "Expected ')' after radius.");
 
-        return new DrawCircleNode(radius, keywordToken);
+        return new DrawCircleNode(dirx,diry,radius, keywordToken);
     }
     private StatementNode ParseDrawRectangleStatement()
     {

@@ -22,8 +22,8 @@ public class SpawnNode : StatementNode
         object Xobj = X.Evaluate(Interpreter);
         object Yobj = Y.Evaluate(Interpreter);
         
-        if(!(Xobj is int x))    throw new RuntimeError($"X argument for Spawn must be an integer.", Token);
-        if(!(Yobj is int y))    throw new RuntimeError($"Y argument for Spawn must be an integer.", Token);
+        if(!(Xobj is int x))    throw new RuntimeError($"X argument for Spawn must be an integer but got {Xobj}.", Token);
+        if(!(Yobj is int y))    throw new RuntimeError($"Y argument for Spawn must be an integer but got {Yobj}.", Token);
         
         bool sucess = Interpreter.WallEInstance.Spawn(x,y);
         if(!sucess)

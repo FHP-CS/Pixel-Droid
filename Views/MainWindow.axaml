@@ -46,7 +46,7 @@
         
             <Grid Grid.Column="0" RowDefinitions="Auto,*" Background="{DynamicResource ResourceKey=PanelGradient}">
                 <Border Grid.Row="0" Padding="5" Margin="10,0">
-                    <Grid RowDefinitions="Auto,*">
+                    <Grid RowDefinitions="Auto">
                         <Label Padding="10" Grid.Row="0">
                             <Image Source="avares://PixelWallE/Assets/pixeldroid.png" VerticalAlignment="Top" HorizontalAlignment="Left" Width="250" Height="250"></Image>
                         </Label>

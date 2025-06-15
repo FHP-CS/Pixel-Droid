@@ -11,6 +11,6 @@ public class FillNode : StatementNode
     public override string ToString()=> "Fill()";
     public override void Execute(Interpreter interpreter)
     {
-        throw new NotImplementedException();
+        interpreter.WallEInstance.Fill();
     }
 }

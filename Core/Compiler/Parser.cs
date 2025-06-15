@@ -242,11 +242,17 @@ public class Parser
     {
         Token keywordToken = Advance(); // Consume 'DrawRectangle
         Consume(TokenType.LParen, "Expected '(' after DrawRectangle.");
+        ExpressionNode dirx = ParseExpression();
+        Consume(TokenType.Comma, "Expected ',' after dirX.");
+        ExpressionNode diry = ParseExpression();
+        Consume(TokenType.Comma, "Expected ',' after dirY.");
+        ExpressionNode distance = ParseExpression();
+        Consume(TokenType.Comma, "Expected ',' after dirY.");
         ExpressionNode width = ParseExpression();
-        Consume(TokenType.Comma, "Expected ',' after width.");
-        ExpressionNode heigth = ParseExpression();
+        Consume(TokenType.Comma, "Expected ',' after dirY.");        
+        ExpressionNode height = ParseExpression();
         Consume(TokenType.RParen, "Expected ')' after heigth.");
-        return new DrawRectangleNode(width, heigth, keywordToken);
+        return new DrawRectangleNode(dirx,diry,distance,width, height, keywordToken);
     }
     private StatementNode ParseFillStatement()
     {

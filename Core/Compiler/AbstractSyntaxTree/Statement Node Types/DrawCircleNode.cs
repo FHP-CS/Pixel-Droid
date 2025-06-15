@@ -26,7 +26,12 @@ public class DrawCircleNode : StatementNode
 
         if (radius is int r && dirXobj is int dir_x && dirYobj is int dir_y)
         {
-            if (!interpreter.WallEInstance.DrawCircle(dir_x,dir_y,r))
+            if(!(ValidDir(dir_x) && ValidDir(dir_y)))        throw new RuntimeError($"Argument dirX , and dirY must represent a direction, 1, 0 or -1", Token);
+            int x = interpreter.WallEInstance.X + dir_x*(r-1);
+            int y = interpreter.WallEInstance.Y + dir_y*(r-1);//le reste 1 para que quede como el del pdf 
+            interpreter.WallEInstance.Spawn(x,y);
+
+            if (!interpreter.WallEInstance.DrawCircle(r))
                 throw new RuntimeError($"Invalid argument {r}", Token);
         }
 
@@ -34,5 +39,9 @@ public class DrawCircleNode : StatementNode
         {
             throw new RuntimeError($"Argument {radius} must be integer", Token);
         }
+    }
+    public bool ValidDir(int x)
+    {
+        return (x == 1 || x== 0 || x== -1) ? true: false;
     }
 }

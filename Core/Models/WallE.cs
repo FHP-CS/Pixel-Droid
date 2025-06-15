@@ -178,6 +178,10 @@ public class WallE
 
 
     }
+    public bool DrawRectangle(int dirx,int diry,int d,int width,int height)
+    {
+        
+    }
     public bool DrawLine(int dirX, int dirY, int distance)
     {
         // Validate direction

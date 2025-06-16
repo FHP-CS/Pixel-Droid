@@ -10,8 +10,6 @@ public class Parser
     private readonly List<Token> _tokens;
     private int _current = 0;
     private readonly List<ParsingError> _errors = new List<ParsingError>();
-
-    // Flag to track if Spawn has been encountered (as per PDF rule)
     private bool _spawnEncountered = false;
 
     public Parser(List<Token> tokens)
@@ -77,7 +75,6 @@ public class Parser
         switch (currentToken.Type)
         {
             case TokenType.Spawn:
-                // PDF Rule: Spawn can only be used once (checked later by validator)
                 // if (_spawnEncountered) {
                 //     Error(currentToken, "Spawn command can only be used once at the beginning.");
                 //     // Skip this token? Or parse and let validator handle? Let validator handle.
@@ -114,26 +111,25 @@ public class Parser
                     {
                         Error(currentToken, $"Identifier not forming valid statement.");
                         Advance(); // Consume the unexpected token to try and proceed
-                        return null;
+                        return null!;
                     }
 
                 }
             case TokenType.EOL:
                 {
                     // It's an empty line. Consume EOL and return null (no statement).
-                    // The main ParseProgram loop already skips leading EOLs.
                     // This handles EOLs that might be *between* statements or as "empty statements".
                     Advance(); // Consume the EOL
-                    return null;
+                    return null!;
                 }
             case TokenType.EOF:
-                return null; // End of file, no more statements
+                return null!; // End of file, no more statements
 
             default:
                 // Unexpected token at the start of a statement
                 // Error(currentToken, $"Expected a statement but found '{currentToken.Lexeme}'.");
                 Advance(); // Consume the unexpected token to try and proceed
-                return null; // Indicate statement parsing failed
+                return null!; // Indicate statement parsing failed
         }
     }
 
@@ -189,7 +185,6 @@ public class Parser
     {
         Token keywordToken = Advance(); // Consume 'Color'
         Consume(TokenType.LParen, "Expected '(' after Color.");
-        // PDF shows Color("Red"), implying a string literal. Lexer handles known colors -> TokenType.String
         ExpressionNode colorExpression;
         if (MatchColor(Peek()))
         {
@@ -361,9 +356,9 @@ public class Parser
         if (Check(TokenType.Identifier) && PeekNext().Type == TokenType.LParen)
             return ParseFunctionCall();
         if (Match(TokenType.Number))
-            return new NumberNode((int)((double)(Previous().Literal)));
+            return new NumberNode((int)((double)(Previous().Literal!)));
         if (Match(TokenType.String)) // For Color("Red")
-            return new StringNode((string)(Previous().Literal));
+            return new StringNode((string)(Previous().Literal!));
         if (Match(TokenType.Identifier))
         {
             return new VariableNode(Previous().Lexeme, Previous());
@@ -379,7 +374,7 @@ public class Parser
         else
         {
             Error(Peek(), $"Parser Error: Expected Number , variable, string Parenthesis, or Function call Expression but found {Peek().Type} ('{Peek().Literal}') at position {_current}.");
-            return null; // Indicate statement parsing failed
+            return null!; // Indicate statement parsing failed
         }
     }
     private FunctionCallNode ParseFunctionCall()
@@ -404,7 +399,7 @@ public class Parser
 
 
 
-    // --- Helper Methods ---
+    // Helper Methods
     private bool MatchColor(Token token)
     {
         TokenType type = token.Type;
@@ -512,8 +507,6 @@ public class Parser
         while (!IsAtEnd())
         {
             if (Previous().Type == TokenType.EOL) return; // End of line is a good sync point
-            // If the previous token was potentially an end-of-statement marker (like EOL if used), maybe stop.
-            // Or look for start keywords of the next statement.
             switch (Peek().Type)
             {
                 // Keywords that likely start new statements

@@ -18,7 +18,7 @@ public class SpawnNode : StatementNode
     public override string ToString() => $"Spawn({X}, {Y})";
     public override void Execute(Interpreter Interpreter)
     {
-        // if(Interpreter._isSpawned) throw new RuntimeError($"WallE is already spawned! What are you doing mate? :()", Token);
+        if(Interpreter._isSpawned) throw new RuntimeError($"WallE is already spawned! What are you doing mate? :()", Token);
         object Xobj = X.Evaluate(Interpreter);
         object Yobj = Y.Evaluate(Interpreter);
         

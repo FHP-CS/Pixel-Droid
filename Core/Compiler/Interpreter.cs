@@ -25,6 +25,7 @@ namespace PixelWallE.Execution
         {
             Canvas = canvas;
             WallEInstance = walle;
+            _statements = new List<StatementNode>();
         }
         //Methods
         public void Reset()
@@ -151,7 +152,7 @@ namespace PixelWallE.Execution
         {
             if (address < 0 || address >= _statements.Count)
             {
-                throw new RuntimeError($"GoTo address {address} is out of program bounds.", null);
+                throw new RuntimeError($"GoTo address {address} is out of program bounds.", null!);
             }
             _programCounter = address;
         }

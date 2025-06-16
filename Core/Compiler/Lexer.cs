@@ -100,11 +100,9 @@ public class Lexer
             case '/':
                 if (Peek() == '/')// is a comment
                 {
-                    // Ahora, consume (ignora) todos los caracteres restantes en la línea
-                    // hasta que encuentres el final de la línea ('\n') o el final del código.
                     while (Peek() != '\n' && !IsAtEnd())
                     {
-                        Advance(); // Consume el carácter del comentario y avanza _current y _column
+                        Advance(); // Consume and advance
                     }
                 }
                 else //is a divition
@@ -181,8 +179,6 @@ public class Lexer
                 _column = 1; // Reset column at new line
                 break;
 
-            // TODO: Add comments (e.g., // or #)
-
             default:
                 if(IsDigit(c) && IsAlpha(Peek())) 
                     throw new LexerException($"Variables or labels shall not start with a number, if you meant to multiply then use the expression ** after the number: '{c}'", _line, _column - 1);
@@ -196,9 +192,8 @@ public class Lexer
                 }
                 else
                 {
-                    // Report error but don't add error token for now
                     throw new LexerException($"Unexpected character: '{c}'  What are ya doing mate?", _line, _column - 1);
-                    // AddToken(TokenType.Unknown, c.ToString());
+                    // AddToken(TokenType.Unknown, c.ToString()); 
                 }
                 break;
         }
@@ -206,7 +201,7 @@ public class Lexer
 
     private void Identifier()
     {
-        // Consume alphanumeric characters (and potentially '_' as per PDF for variables/labels)
+        // Consume alphanumeric characters (and potentially '_' for variables/labels)
         while (IsAlphaNumeric(Peek())) Advance();
 
         string text = _source.Substring(_start, _current - _start);
@@ -233,7 +228,6 @@ public class Lexer
         {
             if (Peek() == '\n') // String literals usually cannot span lines without escape sequences
             {
-                // Depending on spec, either throw error or allow and increment line counter
                 AddToken(TokenType.EOL);
                 _line++; _column = 0; // If allowing, update line/col
             }
@@ -264,7 +258,6 @@ public class Lexer
     {
         while (IsDigit(Peek())) Advance();
 
-        // Look for a fractional part. (Not specified in PDF, but good practice?)
         // if (Peek() == '.' && char.IsDigit(PeekNext())) { ... }
 
         string numberString = _source.Substring(_start, _current - _start);
@@ -308,7 +301,7 @@ public class Lexer
     }
 
     private bool IsDigit(char c) => c >= '0' && c <= '9';
-    private bool IsAlpha(char c) => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_'; // Allow underscore? PDF uses '-'
+    private bool IsAlpha(char c) => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' || c == 'Ñ' || c == 'ñ';
     private bool IsAlphaNumeric(char c) => IsAlpha(c) || IsDigit(c);
 
     // Custom exception for Lexer errors

@@ -33,7 +33,7 @@
         <StackPanel Grid.Row="0"  HorizontalAlignment="Center" Orientation="Horizontal" Spacing="10" Margin="0,0,10,0">
             <TextBlock Text="Canvas Size:" VerticalAlignment="Center"/>
             <NumericUpDown Value="{Binding CanvasSize}" Minimum="8" Maximum="512" Increment="1" Width="120"/>
-            <Button Content="↺ Resize" Background="{DynamicResource ResourceKey=ButtonGradient}" Command="{Binding ApplyResizeCommand}"/>
+            <Button Content="↺ Resize|Clear" Background="{DynamicResource ResourceKey=ButtonGradient}" Command="{Binding ApplyResizeCommand}"/>
         </StackPanel> 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="-5" VerticalAlignment="Top" HorizontalAlignment="Right">
             <Button Content="🗕" Padding="6,2" Width="30" Background="Transparent" Height="25" Margin="5,0" Click="MinimizeWindow"/>

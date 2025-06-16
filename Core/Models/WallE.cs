@@ -178,9 +178,41 @@ public class WallE
 
 
     }
-    public bool DrawRectangle(int dirx,int diry,int d,int width,int height)
+    public bool ValidPosition(int x, int y)
     {
-        
+        return (x >= 0 && x <= _canvas.Width && y >= 0 && y <= _canvas.Height) ? true : false;
+    }
+    public bool DrawRectangle(int width, int height)
+    {
+        if (ValidPosition(width, height))
+        {
+
+            int Width = width % 2 == 0? width + 2: width + 1;
+            int Height = height % 2 == 0? height + 2: height + 1;
+
+            
+            int hW = Width / 2;
+            int hH = Height  / 2;
+            //first corner
+            int x1 = X - hW;
+            int y1 = Y - hH;
+
+            int x2 = X + hW;
+            int y2 = Y + hH;
+            if(!(ValidPosition(x1,y1) && ValidPosition(x2,y2))) return false;
+            for (int i = x1; i <= x2; i++)
+            {
+                _canvas.SetPixel(i, y1, BrushColor);
+                _canvas.SetPixel(i, y2, BrushColor);
+            }
+            for (int i = y1; i <= y2; i++)
+            {
+                _canvas.SetPixel(x1, i, BrushColor);
+                _canvas.SetPixel(x2, i, BrushColor);
+            }
+            return true;
+        }
+        return false;
     }
     public bool DrawLine(int dirX, int dirY, int distance)
     {
@@ -200,8 +232,6 @@ public class WallE
             // Note: We might need to clamp X,Y to canvas bounds if movement can go OOB
             return true;
         }
-
-        Debug.WriteLine($"Drawing Line: Dir=({dirX},{dirY}), Dist={distance}, Start=({X},{Y}), Color={BrushColor}, Size={BrushSize}");
         // int currentX = X;
         // int currentY = Y;
         bool pixelsDrawn = false;

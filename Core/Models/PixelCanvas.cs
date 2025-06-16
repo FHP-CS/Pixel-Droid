@@ -98,6 +98,7 @@ public class PixelCanvas
         if (x1 >= 0 && x1 < Width && y1 >= 0 && y1 < Height &&
            x2 >= 0 && x2 < Width && y2 >= 0 && y2 < Height)
         {
+            
             if (x1 <= x2 && y1 <= y2)
             {
                 for (int i = x1; i <= x2; i++)

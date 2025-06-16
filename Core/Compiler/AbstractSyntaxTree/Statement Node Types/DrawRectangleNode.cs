@@ -41,7 +41,7 @@ public class DrawRectangleNode : StatementNode
             int y = interpreter.WallEInstance.Y + dir_y*(d-1);//le reste 1 para que quede como el del pdf 
             interpreter.WallEInstance.Spawn(x,y);
 
-            if (!interpreter.WallEInstance.DrawRectangle(dir_x,dir_y, d, width, height))
+            if (!interpreter.WallEInstance.DrawRectangle(width, height))
                 throw new RuntimeError($"Invalid arguments ", Token);
         }
 
@@ -53,7 +53,5 @@ public class DrawRectangleNode : StatementNode
     public bool ValidDir(int x)
     {
         return (x == 1 || x== 0 || x== -1) ? true: false;
-    }
-        throw new NotImplementedException();
     }
 }

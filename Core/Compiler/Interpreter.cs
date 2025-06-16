@@ -10,11 +10,11 @@ namespace PixelWallE.Execution
 {
     public class Interpreter
     {
-        // --- Core Models ---
+        // Core Models
         public PixelCanvas Canvas { get; private set; }
         public WallE WallEInstance { get; set; }
 
-        // --- Program State ---
+        // Program State
         private readonly Dictionary<string, object> _variables = new Dictionary<string, object>();
         private readonly Dictionary<string, int> _labelTable = new Dictionary<string, int>(); // Label name -> statement index
         private int _programCounter = 0;
@@ -32,16 +32,8 @@ namespace PixelWallE.Execution
             WallEInstance = new WallE(Canvas);
             _isSpawned = false;
         }
-        public RuntimeError? Run(ProgramNode program)
+        private (bool,LabelNode) FillLabelTable()
         {
-            if (_statements != null)
-                Reset();
-
-            _statements = program.Statements;
-            _programCounter = 0;
-            _variables.Clear();
-            _labelTable.Clear();
-            _isSpawned = false;
             //Fill labeltable
             for (int i = 0; i < _statements.Count; i++)
             {
@@ -50,22 +42,44 @@ namespace PixelWallE.Execution
                     if (_labelTable.ContainsKey(labelNode.Name))
                     {
                         ReportError($"Duplicate label definition: '{labelNode.Name}'", labelNode.Token);
-                        return new RuntimeError($"Duplicate label definition: '{labelNode.Name}'", labelNode.Token);
+                        return (false,labelNode);
                     }
                     _labelTable[labelNode.Name] = i;
                 }
             }
-
-            //check spawn first non label 
+            return (true,null!);
+        }
+        private int GetFirstIndexExecutable()
+        {
             int firstIndexExecutable = -1;
             for (int i = 0; i < _statements.Count; i++)
             {
                 if (!(_statements[i] is LabelNode))
                 {
                     firstIndexExecutable = i;
-                    break;
+                    return i;
                 }
             }
+            throw new NotImplementedException();
+        }
+        public RuntimeError? Run(ProgramNode program)
+        {
+            // if (_statements != null)
+            //     Reset();
+
+            _statements = program.Statements;
+            _programCounter = 0;
+            _variables.Clear();
+            _labelTable.Clear();
+            _isSpawned = false;
+
+            //FillLabels
+            (bool success, LabelNode ProblemLabel) = FillLabelTable();
+            if(!success)   return new RuntimeError($"Duplicate label definition: '{ProblemLabel.Name}'", ProblemLabel.Token);
+
+            //check first spawn non label 
+            int firstIndexExecutable = GetFirstIndexExecutable();
+
             if (firstIndexExecutable != -1 && !(_statements[firstIndexExecutable] is SpawnNode))
             {
                 // Try to get a token from the first non-Spawn statement for error reporting
@@ -73,6 +87,8 @@ namespace PixelWallE.Execution
                 ReportError("The first executable command in the script must be 'Spawn'.", errorToken);
                 return new RuntimeError("Cannot execute commands before Wall-E is successfully spawned.", errorToken);
             }
+
+
             // Main execution loop
             while (_programCounter < _statements.Count)
             {
@@ -80,7 +96,7 @@ namespace PixelWallE.Execution
                 _programCounter++;
                 if (!_isSpawned && !(currentStatement is SpawnNode) && !(currentStatement is LabelNode))
                 {
-                    Token errorToken = GetFirstTokenOfStatement(currentStatement);
+                    Token errorToken = currentStatement.Token;
                     return new RuntimeError("Wall-E must be spawned using 'Spawn(x,y)' before other commands can be executed.", errorToken);
                 }
                 try
@@ -98,7 +114,7 @@ namespace PixelWallE.Execution
                 {
                     Debug.WriteLine($"UNEXPECTED RUNTIME ERROR: {ex.Message} at statement {_programCounter - 1}");
                     Debug.WriteLine(ex.StackTrace);
-                    ReportError($"An unexpected internal error occurred: {ex.Message}", GetFirstTokenOfStatement(currentStatement));
+                    ReportError($"An unexpected internal error occurred: {ex.Message}", currentStatement.Token);
                     return new RuntimeError(ex.Message, currentStatement.Token);
 
                 }
@@ -106,22 +122,9 @@ namespace PixelWallE.Execution
             }
             return null;
         }
-        private Token GetFirstTokenOfStatement(StatementNode statement)
-        {
-            // This is a bit tricky as AST nodes don't always store their first token.
-            // We might need to enhance AST nodes or pass tokens around more.
-            // For now, a placeholder.
-            if (statement is SpawnNode sn && sn.X is AstNode xn) return null; // Placeholder
-            // A better way is to have each statement node store its primary token (e.g., the keyword token)
-            // e.g., public class SpawnNode : StatementNode { public Token SpawnKeywordToken; ... }
-            // For now, returning null means the error message won't have precise line/col from token.
-            return null;
-        }
 
 
-        //--- Public methods for AST nodes to interact with Interpreter's state ---
-        // These are now mostly delegates or getters for variables/labels.
-        // Wall-E actions are on WallEInstance. Canvas actions are on Canvas.
+        // Public methods for AST nodes to interact with Interpreter's state
 
         public object GetVariable(string name, Token tokenForError)
         {
@@ -152,20 +155,15 @@ namespace PixelWallE.Execution
             }
             _programCounter = address;
         }
-        // --- Helper for error reporting ---
+        // Helper for error reporting
         private void ReportError(string message, Token token)
         {
-            // Simple console error reporting for now
-            // In a UI app, you might raise an event or update a status bar.
             string errorLocation = "";
             if (token != null)
             {
                 errorLocation = $"[line {token.Line}, col {token.Column}, token '{token.Lexeme}'] ";
             }
             Debug.WriteLine($"RUNTIME ERROR: {errorLocation}{message}");
-            // You might want to throw a specific exception here that the UI can catch
-            // or have an event that the UI subscribes to for errors.
-            // For a console/backend, re-throwing or just logging might be enough.
         }
         public object CallFunction(string FunctionName, List<object> args, Token FunctionToken)
         {
@@ -239,6 +237,9 @@ namespace PixelWallE.Execution
             }
             throw new RuntimeError($"Undefined function '{FunctionName}'.", FunctionToken);
         }
+        //FunctionCallsMethods 
+        
+        //for functionsCall methods
         private Color ParseColorName(string colorName, Token tokenForError, string errorMessage)
         {
             string colorString = colorName.ToLowerInvariant();

@@ -11,7 +11,7 @@
         Width="800" Height="600"
         x:Class="PixelWallE.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Icon="/Assets/avalonia-logo.ico"
+        Icon="/Assets/logo.png"
         Title="Pixel Wall-E"
         TransparencyLevelHint="None"
         SystemDecorations="None"

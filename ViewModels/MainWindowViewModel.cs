@@ -33,7 +33,7 @@ public partial class MainWindowViewModel : ObservableObject
     private string _codeText = "";
 
     [ObservableProperty]
-    private int _canvasSize = 32;
+    private int _canvasSize = 50;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsWallESpawned))]
@@ -70,21 +70,85 @@ public partial class MainWindowViewModel : ObservableObject
         _pixelCanvas = new PixelCanvas(_canvasSize, _canvasSize);
         _wallE = new WallE(_pixelCanvas);
         CodeText = """
-                   Spawn(5, 5)
+                   Spawn(10, 25)
+                   Color("LightBlue")                                  
+                   DrawLine(1,-1,15)
+                   DrawLine(0,1,15)
+                   DrawLine(-1,0,16)
+                   DrawLine(1,0,8)
+                   DrawLine(0,-1,1)
+                   Fill()
+                   Color(Transparent)
+                   DrawLine(1,0,9)
+                   DrawLine(0,-1,13)
                    Color(Blue)
-                   s<- GetCanvasSize()
-                   i<- 0
-                   while1
-                   j<- 0
-   
-                   while2
-                   Spawn(i,j)
-                   DrawLine(1,1,1)
-                   j<- j+1
-
-                   GoTo [while2] (j<s)
-                   i<- i+1
-                   GoTo [while1] (i<s)
+                   DrawLine(1,1,8)
+                   DrawLine(-1,0,8)
+                   DrawLine(0,-1,8)
+                   DrawLine(0,1,3)
+                   DrawLine(1,0,1)
+                   Fill()
+                   DrawLine(1,1,4)
+                   Color(Transparent)
+                   DrawLine(0,1,2)
+                   DrawLine(1,0,2)
+                   Color("darkblue")
+                   DrawLine(-1,1,5)
+                   DrawLine(0,-1,5)
+                   DrawLine(1,0,1)
+                   Fill()
+                   Color(Transparent)
+                   DrawLine(0,1,4)
+                   DrawLine(-1,0,2)
+                   Color(Black)
+                   DrawLine(-1,-1,1)
+                   DrawLine(1,0,2)
+                   Color(Transparent)
+                   DrawLine(-1,0,21)
+                   DrawLine(0,1,8)
+                   Color(Black)
+                   DrawLine(0,-1,3)
+                   DrawLine(1,1,2)
+                   DrawLine(1,-1,2)
+                   DrawLine(0,1,4)
+                   Color(Transparent)
+                   DrawLine(1,0,2)
+                   DrawLine(0,-1,1)
+                   Color(Black)
+                   DrawLine(0,-1,3)
+                   DrawLine(1,0,3)
+                   DrawLine(0,1,3)
+                   DrawLine(0,-1,1)
+                   DrawLine(-1,0,3)
+                   DrawLine(1,0,4)
+                   Color(Transparent)
+                   DrawLine(1,0,3)
+                   DrawLine(0,1,1)
+                   Color(Black)
+                   DrawLine(0,-1,3)
+                   DrawLine(1,0,2)
+                   DrawLine(-1,0,5)
+                   Color( Transparent)
+                   DrawLine(1,0,7)
+                   Color(Black)
+                   DrawLine(1,0,3)
+                   DrawLine(-1,0,3)
+                   DrawLine(0,1,3)
+                   DrawLine(1,0,4)
+                   Color( Transparent)
+                   DrawLine(1,0,1)
+                   Color(Black)
+                   DrawLine(0,-1,3)
+                   DrawLine(1,0,3)
+                   DrawLine(0,1,3)
+                   DrawLine(-1,0,3)
+                   Color(Transparent)
+                   DrawLine(1,0,5)
+                   Color(Black)
+                   DrawLine(0,-1,3)
+                   DrawLine(1,1,2)
+                   DrawLine(1,-1,2)
+                   DrawLine(0,1,4)
                    """;
         UpdateWallEPosition();
         SetStatus("Application loaded. Ready.", StatusMessageType.Info); // Initialize with a status

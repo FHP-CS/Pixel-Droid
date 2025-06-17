@@ -59,6 +59,8 @@ public class WallE
     public Dictionary<string, Color> _Colors = new Dictionary<string, Color>{
         {"red",Colors.Red},
         {"blue",Colors.Blue},
+        {"lightblue",Colors.RoyalBlue},
+        {"darkblue",Colors.DarkBlue},
         {"green",Colors.Green},
         {"yellow",Colors.Yellow},
         {"orange",Colors.Orange},

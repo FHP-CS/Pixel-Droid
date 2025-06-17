@@ -19,6 +19,7 @@ namespace PixelWallE.Execution
         private readonly Dictionary<string, int> _labelTable = new Dictionary<string, int>(); // Label name -> statement index
         private int _programCounter = 0;
         private List<StatementNode> _statements;
+        
         public bool _isSpawned = false;// Track if Spawn command has been executed
         //COnstructor
         public Interpreter(PixelCanvas canvas, WallE walle)

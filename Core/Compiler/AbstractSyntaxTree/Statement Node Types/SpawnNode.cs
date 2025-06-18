@@ -3,6 +3,7 @@
 using System;
 using PixelWallE.Common;
 using PixelWallE.Execution;
+using System.Threading.Tasks; // for delay
 public class SpawnNode : StatementNode
 {
     public override Token Token { get; }
@@ -16,7 +17,7 @@ public class SpawnNode : StatementNode
         Y = y;
     }
     public override string ToString() => $"Spawn({X}, {Y})";
-    public override void Execute(Interpreter Interpreter)
+    public override Task Execute(Interpreter Interpreter)
     {
         if(Interpreter._isSpawned) throw new RuntimeError($"WallE is already spawned! What are you doing mate? :()", Token);
         object Xobj = X.Evaluate(Interpreter);
@@ -28,7 +29,6 @@ public class SpawnNode : StatementNode
         bool sucess = Interpreter.WallEInstance.Spawn(x,y);
         if(!sucess)
            throw new RuntimeError($"Spawn command failed. Position ({Xobj},{Yobj}) might be out of canvas bounds.", Token);
-        
-
+        return Task.CompletedTask;
     }
 }

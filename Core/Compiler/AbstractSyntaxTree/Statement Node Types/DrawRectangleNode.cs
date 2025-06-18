@@ -2,6 +2,8 @@
 using System;
 using PixelWallE.Common;
 using PixelWallE.Execution;
+using System.Threading.Tasks; // for delay
+
 public class DrawRectangleNode : StatementNode
 {
     public ExpressionNode dirX {get;}
@@ -23,7 +25,7 @@ public class DrawRectangleNode : StatementNode
         Token = token;
     }
     public override string ToString() => $"DrawRectangle({Width}, {Height})";
-    public override void Execute(Interpreter interpreter)
+    public override async Task Execute(Interpreter interpreter)
     {
         object dirXobj = dirX.Evaluate(interpreter);
         object dirYobj = dirY.Evaluate(interpreter);
@@ -41,7 +43,7 @@ public class DrawRectangleNode : StatementNode
             int y = interpreter.WallEInstance.Y + dir_y*(d-1);//le reste 1 para que quede como el del pdf 
             interpreter.WallEInstance.Spawn(x,y);
 
-            if (!interpreter.WallEInstance.DrawRectangle(width, height))
+            if (!await interpreter.WallEInstance.DrawRectangle(width, height))
                 throw new RuntimeError($"Invalid arguments ", Token);
         }
 

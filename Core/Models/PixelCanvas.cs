@@ -1,6 +1,7 @@
 // Models/PixelCanvas.cs
 using Avalonia.Media;
 using System;
+using System.Threading.Tasks; // for delay
 using System.Diagnostics.CodeAnalysis; // Needed for MemberNotNull attribute
 
 namespace PixelWallE.Models;
@@ -9,7 +10,7 @@ public class PixelCanvas
 {
     // The field that caused the warning
     private Color[,] _pixels; // Now it will be initialized in the constructor
-
+    public int DrawDelayMs {get; set;} = 0;
     public int Width { get; private set; }
     public int Height { get; private set; }
 
@@ -71,11 +72,16 @@ public class PixelCanvas
     }
 
     // Set a single pixel color, handling bounds
-    public bool SetPixel(int x, int y, Color color)
+    public  async Task<bool> SetPixel(int x, int y, Color color)
     {
         if (x >= 0 && x < Width && y >= 0 && y < Height)
         {
             _pixels[x, y] = color;
+            if (DrawDelayMs > 0)
+            {
+                await Task.Delay(DrawDelayMs); // << THE DELAY
+            }
+            NotifyChanged(); 
             // We will call NotifyChanged() after the *entire* drawing operation (like DrawLine)
             return true; // Pixel was set
         }

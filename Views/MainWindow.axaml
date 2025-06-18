@@ -8,10 +8,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="1366" d:DesignHeight="768"
-        Width="800" Height="600"
+        Width="1050" Height="705"
         x:Class="PixelWallE.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Icon="/Assets/logo.png"
+        Icon="/Assets/walle.png"
         Title="Pixel Wall-E"
         TransparencyLevelHint="None"
         SystemDecorations="None"
@@ -32,8 +32,8 @@
         </StackPanel>
         <StackPanel Grid.Row="0"  HorizontalAlignment="Center" Orientation="Horizontal" Spacing="10" Margin="0,0,10,0">
             <TextBlock Text="Canvas Size:" VerticalAlignment="Center"/>
-            <NumericUpDown Value="{Binding CanvasSize}" Minimum="8" Maximum="512" Increment="1" Width="120"/>
-            <Button Content="↺ Resize|Clear" Background="{DynamicResource ResourceKey=ButtonGradient}" Command="{Binding ApplyResizeCommand}"/>
+            <NumericUpDown Value="{Binding CanvasSize}" Minimum="8" Maximum="256" Increment="1" Width="120"/>
+            <Button Content="↺ Resize | Clear" Background="{DynamicResource ResourceKey=ButtonGradient}" Command="{Binding ApplyResizeCommand}"/>
         </StackPanel> 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="-5" VerticalAlignment="Top" HorizontalAlignment="Right">
             <Button Content="🗕" Padding="6,2" Width="30" Background="Transparent" Height="25" Margin="5,0" Click="MinimizeWindow"/>
@@ -48,19 +48,23 @@
                 <Border Grid.Row="0" Padding="5" Margin="10,0">
                     <Grid RowDefinitions="Auto">
                         <Label Padding="10" Grid.Row="0">
-                            <Image Source="avares://PixelWallE/Assets/pixeldroid.png" VerticalAlignment="Top" HorizontalAlignment="Left" Width="250" Height="250"></Image>
+                            <Image Source="avares://PixelWallE/Assets/pixeldroid.png" VerticalAlignment="Top" HorizontalAlignment="Center" Width="250" Height="200"></Image>
                         </Label>
                     </Grid>
                 </Border>
                  <!-- Left Panel: Text Editor (Basic for now) -->
                 <Grid Grid.Row="1" RowDefinitions="Auto,*" Margin="0,0,0,10">
                     <Button Grid.Row="0" Content="⏏️ Run"  Width="100" Height="20" Padding="3,0" Margin="10,0" HorizontalAlignment="Left" Background="{DynamicResource ResourceKey=ButtonGradient}" Command="{Binding ExecuteCodeCommand}"/>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="5" Margin="10,0">
+                      <TextBlock Text="Delay (ms):" VerticalAlignment="Center"/>
+                      <NumericUpDown Value="{Binding DrawDelay}" Minimum="0" Maximum="100"  Increment="10" Height= "20" Width="125"/>
+                    </StackPanel>
                     <Border Grid.Row="1"
                             BorderThickness="1"
                             BorderBrush="DarkGray"
                             Background="#0d031c"
                             CornerRadius="8"
-                            MinWidth="400"
+                            MinWidth="425"
                             Margin="0,0,10,0">
                         <avedit:TextEditor
                             x:Name="CodeEditor"

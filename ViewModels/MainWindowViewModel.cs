@@ -344,6 +344,7 @@ public partial class MainWindowViewModel : ObservableObject
         PixelCanvas = new PixelCanvas(CanvasSize, CanvasSize);
         // CRUCIAL: Create a NEW WallE instance tied to the NEW canvas
         _wallE = new WallE(PixelCanvas);
+        PixelCanvas.DrawDelayMs = _DrawDelay;
         UpdateWallEPosition();
         SetStatus($"Canvas resized to {CanvasSize}x{CanvasSize}. Wall-E reset. Ready.");
     }
@@ -374,7 +375,7 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
 
 
-    private void ExecuteCode()
+    private async Task ExecuteCode()
     {
         StatusText = "Compiling...";
         Debug.WriteLine("--- Starting Code Execution ---");
@@ -420,7 +421,7 @@ public partial class MainWindowViewModel : ObservableObject
         SetStatus("Executing...");
         var interpreter = new Interpreter(_pixelCanvas, _wallE);
 
-        RuntimeError? runtimeError = interpreter.Run(source);
+        RuntimeError? runtimeError = await interpreter.Run(source);
 
         if (runtimeError != null)
         {
@@ -437,5 +438,15 @@ public partial class MainWindowViewModel : ObservableObject
             UpdateWallEPosition();      // Update Wall-E pos in VM if displayed
         }
         Debug.WriteLine("--- Code Execution Finished ---");
+    }
+    // Add property for delay control
+    [ObservableProperty]
+    private int _DrawDelay = 0; // Default to no delay
+
+    partial void OnDrawDelayChanged(int value)
+    {
+        // Optional: Update the canvas immediately if it's already set up
+        // Or, the interpreter will pick it up when Run is called.
+        if(_pixelCanvas != null) _pixelCanvas.DrawDelayMs = value;
     }
 }

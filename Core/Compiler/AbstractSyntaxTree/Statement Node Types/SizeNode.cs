@@ -2,6 +2,7 @@
 using System;
 using PixelWallE.Common;
 using PixelWallE.Execution;
+using System.Threading.Tasks; // for delay
 public class SizeNode : StatementNode
 {
     public ExpressionNode SizeExpression { get; }
@@ -13,14 +14,13 @@ public class SizeNode : StatementNode
         SizeExpression = sizeExpression;
     }
     public override string ToString() => $"Size({SizeExpression})";
-    public override void Execute(Interpreter Interpreter)
+    public override Task Execute(Interpreter Interpreter)
     {
 
         if (SizeExpression.Evaluate(Interpreter) is int size)
             Interpreter.WallEInstance.SetSize(size);
         else
             throw new RuntimeError($"Argument ({SizeExpression} must be integers", Token);
-
-
+        return Task.CompletedTask;
     }
 }

@@ -1,6 +1,8 @@
 using System;
 using PixelWallE.Common;
 using PixelWallE.Execution;
+using System.Threading.Tasks; // for delay
+
 public class DrawLineNode : StatementNode
 {
     public ExpressionNode dirX { get; }
@@ -15,7 +17,7 @@ public class DrawLineNode : StatementNode
         Token = token;
     }
     public override string ToString() => $"DrawLine({dirX}, {dirY}, {Distance})";
-    public override void Execute(Interpreter interpreter)
+    public override async Task Execute(Interpreter interpreter)
     {
         object Dx = dirX.Evaluate(interpreter);
         object Dy = dirY.Evaluate(interpreter);
@@ -24,7 +26,7 @@ public class DrawLineNode : StatementNode
 
         if (Dx is int dX && Dy is int dY && dist is int dS)
         {
-            if (!interpreter.WallEInstance.DrawLine(dX, dY, dS))
+            if (!await interpreter.WallEInstance.DrawLine(dX, dY, dS))
             {
         throw new RuntimeError($"Invalid arguments {dirX} , {dirY} , {Distance}",Token);
             

@@ -2,6 +2,7 @@
 using System;
 using PixelWallE.Common;
 using PixelWallE.Execution;
+using System.Threading.Tasks; // for delay
 public class ColorNode : StatementNode
 {
     public override Token Token { get; }
@@ -13,13 +14,13 @@ public class ColorNode : StatementNode
         ColorExpression = colorExpression;
     }
     public override string ToString() => $"Color({ColorExpression})";
-    public override void Execute(Interpreter Interpreter)
+    public override Task Execute(Interpreter Interpreter)
     {
         if (ColorExpression.Evaluate(Interpreter) is string color)
             Interpreter.WallEInstance.SetColor(color);
         else
             throw new RuntimeError($"Argument ({ColorExpression} must be a string", Token);
-
+        return Task.CompletedTask; 
 
     }
 }

@@ -2,6 +2,7 @@
 using Avalonia.Media;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks; // for delay
 using System.Diagnostics; // For Debug.WriteLine
 
 namespace PixelWallE.Models;
@@ -94,20 +95,20 @@ public class WallE
         if (x >= 0 && x <= _canvas.Height && y >= 0 && y <= _canvas.Height) return true;
         return false;
     }
-    public bool Fill()
+    public async Task<bool> Fill()
     {
         Color fillColor = BrushColor;
         Color targetColor = _canvas.GetPixel(X, Y);
         if (targetColor == fillColor) return true;
 
-        flood(X, Y, targetColor, fillColor);
+        await flood(X, Y, targetColor, fillColor);
         return true;
     }
 
-    public void flood(int x, int y, Color targetColor, Color fillColor)
+    public async Task flood(int x, int y, Color targetColor, Color fillColor)
     {
         Color pixColor = _canvas.GetPixel(x, y);
-        if (pixColor == targetColor) _canvas.SetPixel(x, y, fillColor);
+        if (pixColor == targetColor) await _canvas.SetPixel(x, y, fillColor);
         else return;
 
         int[] downPixel = { x, y + 1 };
@@ -144,13 +145,13 @@ public class WallE
     /// <param name="distance">Length of the line in pixels.</param>
     /// <returns>True if drawing happened, false otherwise (e.g., invalid direction).</returns>
     /// 
-    public bool DrawCircle(int r)
+    public async Task<bool> DrawCircle(int r)
     {
         int[] Vt = new int[] { X, Y }; //Vector for traslation 
         //centre
-        int cx = 0;   //                     0,-r
-        int cy = 0;   //                     |
-        //Variables  //           -r,0  -----|-----  r,0
+        int cx = 0;   //                       0,-r
+        int cy = 0;   //                        |
+        //Variables  //              -r,0  -----|-----  r,0
         double x = 0;   //                      |
         double y = -r;  //                      0,r
         if (r < 0)
@@ -164,15 +165,14 @@ public class WallE
             double yMid = y + 0.5;
             if (x * x + yMid * yMid > r * r) y++;
 
-            _canvas.SetPixel((int)(cx + x + Vt[0]), (int)(cy + y + Vt[1]), BrushColor);
-            _canvas.SetPixel((int)(cx - x + Vt[0]), (int)(cy + y + Vt[1]), BrushColor);
-            _canvas.SetPixel((int)(cx + x + Vt[0]), (int)(cy - y + Vt[1]), BrushColor);
-            _canvas.SetPixel((int)(cx - x + Vt[0]), (int)(cy - y + Vt[1]), BrushColor);
-
-            _canvas.SetPixel((int)(cx + y + Vt[0]), (int)(cy + x + Vt[1]), BrushColor);
-            _canvas.SetPixel((int)(cx + y + Vt[0]), (int)(cy - x + Vt[1]), BrushColor);
-            _canvas.SetPixel((int)(cx - y + Vt[0]), (int)(cy + x + Vt[1]), BrushColor);
-            _canvas.SetPixel((int)(cx - y + Vt[0]), (int)(cy - x + Vt[1]), BrushColor);
+             await _canvas.SetPixel((int)(cx + x + Vt[0]), (int)(cy + y + Vt[1]), BrushColor);
+             await _canvas.SetPixel((int)(cx - x + Vt[0]), (int)(cy + y + Vt[1]), BrushColor);
+             await _canvas.SetPixel((int)(cx + x + Vt[0]), (int)(cy - y + Vt[1]), BrushColor);
+             await _canvas.SetPixel((int)(cx - x + Vt[0]), (int)(cy - y + Vt[1]), BrushColor);
+             await _canvas.SetPixel((int)(cx + y + Vt[0]), (int)(cy + x + Vt[1]), BrushColor);
+             await _canvas.SetPixel((int)(cx + y + Vt[0]), (int)(cy - x + Vt[1]), BrushColor);
+             await _canvas.SetPixel((int)(cx - y + Vt[0]), (int)(cy + x + Vt[1]), BrushColor);
+             await _canvas.SetPixel((int)(cx - y + Vt[0]), (int)(cy - x + Vt[1]), BrushColor);
 
             x++;
         }
@@ -184,7 +184,7 @@ public class WallE
     {
         return (x >= 0 && x <= _canvas.Width && y >= 0 && y <= _canvas.Height) ? true : false;
     }
-    public bool DrawRectangle(int width, int height)
+    public async Task<bool> DrawRectangle(int width, int height)
     {
         if (ValidPosition(width, height))
         {
@@ -204,19 +204,19 @@ public class WallE
             if(!(ValidPosition(x1,y1) && ValidPosition(x2,y2))) return false;
             for (int i = x1; i <= x2; i++)
             {
-                _canvas.SetPixel(i, y1, BrushColor);
-                _canvas.SetPixel(i, y2, BrushColor);
+                 await _canvas.SetPixel(i, y1, BrushColor);
+                 await _canvas.SetPixel(i, y2, BrushColor);
             }
             for (int i = y1; i <= y2; i++)
             {
-                _canvas.SetPixel(x1, i, BrushColor);
-                _canvas.SetPixel(x2, i, BrushColor);
+                await _canvas.SetPixel(x1, i, BrushColor);
+                await _canvas.SetPixel(x2, i, BrushColor);
             }
             return true;
         }
         return false;
     }
-    public bool DrawLine(int dirX, int dirY, int distance)
+    public async Task<bool> DrawLine(int dirX, int dirY, int distance)
     {
         // Validate direction
         if (Math.Abs(dirX) > 1 || Math.Abs(dirY) > 1 || (dirX == 0 && dirY == 0))
@@ -247,10 +247,10 @@ public class WallE
 
             // Draw the brush square centered at (stepX, stepY)
             if (i == 0 && distance > 1)//first step 
-                _canvas.SetPixel(stepX, stepY, BrushColor);
+                await _canvas.SetPixel(stepX, stepY,BrushColor);
             else
             {
-                pixelsDrawn |= DrawBrushAt(stepX, stepY);
+                pixelsDrawn |= await DrawBrushAt(stepX, stepY);
             }
         }
 
@@ -273,7 +273,7 @@ public class WallE
     }
 
     // Helper to draw the brush square centered at a point
-    private bool DrawBrushAt(int centerX, int centerY)
+    private async Task<bool> DrawBrushAt(int centerX, int centerY)
     {
         if (BrushColor == Colors.Transparent) return false;
 
@@ -284,7 +284,7 @@ public class WallE
         {
             for (int dy = -halfSize; dy <= halfSize; dy++)
             {
-                drawn |= _canvas.SetPixel(centerX + dx, centerY + dy, BrushColor);
+                 drawn |= await _canvas.SetPixel(centerX + dx, centerY + dy, BrushColor);
             }
         }
         // Small logging for brush application if needed

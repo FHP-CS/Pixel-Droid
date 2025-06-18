@@ -1,5 +1,6 @@
 using System;
 using PixelWallE.Common;
+using System.Threading.Tasks; // for delay
 using PixelWallE.Execution;
 public class FillNode : StatementNode
 {
@@ -9,8 +10,8 @@ public class FillNode : StatementNode
         Token = token;
     }
     public override string ToString()=> "Fill()";
-    public override void Execute(Interpreter interpreter)
+    public override async Task Execute(Interpreter interpreter)
     {
-        interpreter.WallEInstance.Fill();
+        await interpreter.WallEInstance.Fill();
     }
 }

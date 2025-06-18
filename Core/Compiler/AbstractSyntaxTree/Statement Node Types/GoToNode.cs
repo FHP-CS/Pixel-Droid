@@ -1,6 +1,7 @@
 using System;
 using PixelWallE.Common;
 using PixelWallE.Execution;
+using System.Threading.Tasks; // for delay
 //GoTo[Label] ()
 public class GoToNode : StatementNode
 {
@@ -17,7 +18,7 @@ public class GoToNode : StatementNode
         Token = MainToken;
     }
     public override string ToString() => $"GoTo [{labelName}] ({Condition})";
-    public override void Execute(Interpreter Interpreter)
+    public override Task Execute(Interpreter Interpreter)
     {
         object cond = Condition.Evaluate(Interpreter);
         int address = Interpreter.GetLabelAddress(labelName, labelToken);
@@ -32,5 +33,6 @@ public class GoToNode : StatementNode
         }
         else
             throw new RuntimeError("Condition of the GoTo must be a boolean expression", Token);
+        return Task.CompletedTask;
     }
 }

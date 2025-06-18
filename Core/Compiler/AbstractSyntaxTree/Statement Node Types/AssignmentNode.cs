@@ -2,6 +2,7 @@
 using System;
 using PixelWallE.Common;
 using PixelWallE.Execution;
+using System.Threading.Tasks; // for delay
 
 // var <- expression
 public class AssignmentNode : StatementNode
@@ -15,10 +16,11 @@ public class AssignmentNode : StatementNode
         ValueExpression = valueExpression;
     }
     public override string ToString() => $"{Token.Lexeme} <- {ValueExpression}";
-    public override void Execute(Interpreter Interpreter)
+    public override Task Execute(Interpreter Interpreter)
     {
        object value = ValueExpression.Evaluate(Interpreter);
        Interpreter.SetVariable(Token.Lexeme, value);
+       return Task.CompletedTask; // Indicate completion
     }
 
 }

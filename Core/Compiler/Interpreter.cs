@@ -1,4 +1,5 @@
 using PixelWallE.Common; // For Token, TokenType
+using System.Threading.Tasks; // for delay
 using PixelWallE.Parser; // For AstNode and its derivatives
 using PixelWallE.Models; // For PixelCanvas, WallE
 using Avalonia.Media; // For Colors
@@ -64,7 +65,7 @@ namespace PixelWallE.Execution
             }
             throw new NotImplementedException();
         }
-        public RuntimeError? Run(ProgramNode program)
+        public async Task<RuntimeError?> Run(ProgramNode program)
         {
             // if (_statements != null)
             //     Reset();
@@ -103,7 +104,7 @@ namespace PixelWallE.Execution
                 }
                 try
                 {
-                    currentStatement.Execute(this);
+                    await currentStatement.Execute(this);
                     // If SpawnNode was just executed successfully, mark it.
                     if (currentStatement is SpawnNode) _isSpawned = true;
                 }

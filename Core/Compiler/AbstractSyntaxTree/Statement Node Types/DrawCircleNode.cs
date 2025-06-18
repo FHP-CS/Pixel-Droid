@@ -1,6 +1,8 @@
 using System;
 using PixelWallE.Common;
 using PixelWallE.Execution;
+using System.Threading.Tasks; // for delay
+
 // Spawn(x, y)
 public class DrawCircleNode : StatementNode
 {
@@ -18,7 +20,7 @@ public class DrawCircleNode : StatementNode
         Token = token;
     }
     public override string ToString() => $"DrawCircle({Radius})";
-    public override void Execute(Interpreter interpreter)
+    public override async Task Execute(Interpreter interpreter)
     {
         object dirXobj = dirX.Evaluate(interpreter);
         object dirYobj = dirY.Evaluate(interpreter);
@@ -31,7 +33,7 @@ public class DrawCircleNode : StatementNode
             int y = interpreter.WallEInstance.Y + dir_y*(r-1);//le reste 1 para que quede como el del pdf 
             interpreter.WallEInstance.Spawn(x,y);
 
-            if (!interpreter.WallEInstance.DrawCircle(r))
+            if (!await interpreter.WallEInstance.DrawCircle(r))
                 throw new RuntimeError($"Invalid argument {r}", Token);
         }
 

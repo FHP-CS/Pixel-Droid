@@ -20,15 +20,23 @@ public enum TokenType
 
     //COlors
 
-    Red,
-    Blue,
-    Green,
-    Yellow,
-    Orange,
-    Purple,
-    Black,
-    White,
-    Transparent,
+    // Red,
+    // Blue,
+    // Green,
+    // Yellow,
+    // Orange,
+    // Purple,
+    // Black,
+    // White,
+    // Transparent,
+    // new colors
+    // LightBlue,
+    // DarkBlue,
+    // Pink,
+    // Brown,
+    // Gray,
+    // Grey,
+    // Violet,
 
     //Operators
 

@@ -30,18 +30,25 @@ public class Lexer
             { "GoTo", TokenType.GoTo},
             { "Fill", TokenType.Fill},
             //Colors
-            { "Red", TokenType.Red},
-            { "Blue", TokenType.Blue},
-            { "Green", TokenType.Green},
-            { "Yellow", TokenType.Yellow},
-            { "Orange", TokenType.Orange},
-            { "Purple", TokenType.Purple},
-            { "Black", TokenType.Black},
-            { "White", TokenType.White},
-            { "Transparent", TokenType.Transparent},
+            { "Red", TokenType.Color},
+            { "Blue", TokenType.Color},
 
+            { "Pink", TokenType.Color},
+            { "Brown", TokenType.Color},
+            { "Green", TokenType.Color},
+            { "Yellow", TokenType.Color},
+            { "Orange", TokenType.Color},
+            { "Purple", TokenType.Color},
+            { "Black", TokenType.Color},
+            { "White", TokenType.Color},
+            { "Transparent", TokenType.Color},
+            //added colors
+            { "LightBlue", TokenType.Color},
+            { "DarkBlue", TokenType.Color},
+            { "Violet", TokenType.Color},
+            { "Gray", TokenType.Color},
+            { "Grey", TokenType.Color},
 
-            
             // TODO: Add more keywords
         };
     }
@@ -60,8 +67,6 @@ public class Lexer
             catch (LexerException ex)
             {
                 errors.Add(new ParsingError(ex.Message, ex.Line, ex.Column, ErrorType.Lexical));
-                // Add an error token or skip? Let's just report and continue for now.
-                // We might need a way to synchronize after an error.
                 Advance(); // Move past the problematic character
             }
         }
@@ -90,10 +95,11 @@ public class Lexer
             case '+': AddToken(TokenType.Plus); break;
             case '-': AddToken(TokenType.Minus); break;
             case '*':
-                if (Peek() == '*'){
+                if (Peek() == '*')
+                {
                     AddToken(TokenType.Power);//**
                     Advance();
-                    }
+                }
                 else
                     AddToken(TokenType.Multiply);//*
                 break;
@@ -180,7 +186,7 @@ public class Lexer
                 break;
 
             default:
-                if(IsDigit(c) && IsAlpha(Peek())) 
+                if (IsDigit(c) && IsAlpha(Peek()))
                     throw new LexerException($"Variables or labels shall not start with a number, if you meant to multiply then use the expression ** after the number: '{c}'", _line, _column - 1);
                 if (IsDigit(c))
                 {
@@ -209,14 +215,18 @@ public class Lexer
         // Check if it's a keyword
         if (_keywords.TryGetValue(text, out TokenType type))
         {
-            AddToken(type);
+            if (type == TokenType.Color) AddToken(type, text);
+            else
+            {
+                AddToken(type);
+            }
         }
         else
 
         {
             // (for variables/labels later)
-            if(text[0] == '-') throw new LexerException($"Variable or Label shall not start with the symbol (-)! What are ya doing mate?", _line, _column - 1);
-            if(text[0] == '_') throw new LexerException($"Variable or Label shall not start with the symbol (_)! What are ya doing mate?", _line, _column - 1);
+            if (text[0] == '-') throw new LexerException($"Variable or Label shall not start with the symbol (-)! What are ya doing mate?", _line, _column - 1);
+            if (text[0] == '_') throw new LexerException($"Variable or Label shall not start with the symbol (_)! What are ya doing mate?", _line, _column - 1);
             AddToken(TokenType.Identifier);
         }
 
@@ -239,14 +249,13 @@ public class Lexer
             throw new LexerException("Unterminated string literal.", _line, _start + 1); // _start + 1 is the column of opening quote
         }
 
-        Advance(); // Consume the closing quote.
+        Advance();
 
         // Extract the string value, excluding the quotes
         string value = _source.Substring(_start + 1, _current - _start - 2);
         AddToken(TokenType.String, value);
     }
 
-    // Basic check for initial color names from PDF
     private bool IsKnownColor(string text)
     {
         var knownColors = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase)

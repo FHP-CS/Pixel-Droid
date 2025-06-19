@@ -186,9 +186,9 @@ public class Parser
         Token keywordToken = Advance(); // Consume 'Color'
         Consume(TokenType.LParen, "Expected '(' after Color.");
         ExpressionNode colorExpression;
-        if (MatchColor(Peek()))
+        if (Peek().Type == TokenType.Color)
         {
-            colorExpression = new StringNode(GetColor(Advance()));//Get the string directly
+            colorExpression = new StringNode(Advance().Lexeme);//Get the string directly
         }
         else { colorExpression = ParseExpression(); } //parse expresion to get color
 
@@ -400,37 +400,31 @@ public class Parser
 
 
     // Helper Methods
-    private bool MatchColor(Token token)
-    {
-        TokenType type = token.Type;
-        if (type == TokenType.Red ||
-           type == TokenType.Blue ||
-           type == TokenType.Green ||
-           type == TokenType.Yellow ||
-           type == TokenType.Orange ||
-           type == TokenType.Purple ||
-           type == TokenType.Black ||
-           type == TokenType.White ||
-           type == TokenType.Transparent) return true;
-        return false;
-    }
-    private string GetColor(Token t)
-    {
-        switch (t.Type)
-        {
-            case TokenType.Red: return "Red";
-            case TokenType.Blue: return "Blue";
-            case TokenType.Green: return "Green";
-            case TokenType.Yellow: return "Yellow";
-            case TokenType.Orange: return "Orange";
-            case TokenType.Purple: return "Purple";
-            case TokenType.Black: return "Black";
-            case TokenType.White: return "White";
-            case TokenType.Transparent: return "Transparent";
-        }
-        throw new ParserException("Expected a color typed token", t);
+    
+    
+    //     {"pink",Colors.Pink},
+    //     {"gray",Colors.Gray},
+    //     {"grey",Colors.Gray},
+    //     {"violet",Colors.Violet},
+    //     {"brown",Colors.Brown},
 
-    }
+    // private string GetColor(Token t)
+    // {
+    //     switch (t.Type)
+    //     {
+    //         case TokenType.Red: return "Red";
+    //         case TokenType.Blue: return "Blue";
+    //         case TokenType.Green: return "Green";
+    //         case TokenType.Yellow: return "Yellow";
+    //         case TokenType.Orange: return "Orange";
+    //         case TokenType.Purple: return "Purple";
+    //         case TokenType.Black: return "Black";
+    //         case TokenType.White: return "White";
+    //         case TokenType.Transparent: return "Transparent";
+    //     }
+        // throw new ParserException("Expected a color typed token", t);
+
+    // }
     private bool Check(TokenType type)
     {
         if (IsAtEnd()) return false;

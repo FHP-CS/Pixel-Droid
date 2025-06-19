@@ -110,8 +110,8 @@ namespace PixelWallE.Execution
                 }
                 catch (RuntimeError ex)
                 {
-                    ReportError(ex.Message, ex.Token);
-                    return new RuntimeError(ex.Message, ex.Token);
+                    ReportError(ex.Message + $", L:{ex.Token.Line} C:{ex.Token.Column}", ex.Token);
+                    return new RuntimeError(ex.Message + $", L:{ex.Token.Line} C:{ex.Token.Column}", ex.Token);
                 }
                 catch (Exception ex)
                 {

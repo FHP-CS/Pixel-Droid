@@ -10,6 +10,7 @@ using CommunityToolkit.Mvvm.ComponentModel; // Required for ObservableObject and
 using CommunityToolkit.Mvvm.Input;          // Required for RelayCommand
 using PixelWallE.Models; // Your models namespace
 using System.Diagnostics;
+using System.Runtime.InteropServices; // For OSPlatform checks
 using PixelWallE.Parser;
 using PixelWallE.Execution;
 using System.Windows.Input;       // For ICommand (though IAsyncRelayCommand is more specific)
@@ -22,7 +23,7 @@ namespace PixelWallE.ViewModels;
 
 public partial class MainWindowViewModel : ObservableObject
 {
-    // --- Observable Properties ---
+    // Observable Properties
 
     [ObservableProperty]
     private PixelCanvas _pixelCanvas;
@@ -64,7 +65,7 @@ public partial class MainWindowViewModel : ObservableObject
     public event Action<string>? CodeHasBeenLoaded; // Notify that code
 
 
-    // --- Constructor ---
+    // Constructor
     public MainWindowViewModel()
     {
         _pixelCanvas = new PixelCanvas(_canvasSize, _canvasSize);
@@ -88,6 +89,7 @@ public partial class MainWindowViewModel : ObservableObject
                    DrawLine(0,1,3)
                    DrawLine(1,0,1)
                    Fill()
+                   Color(Transparent)
                    DrawLine(1,1,4)
                    Color(Transparent)
                    DrawLine(0,1,2)
@@ -156,7 +158,7 @@ public partial class MainWindowViewModel : ObservableObject
         LoadCodeAsyncCommand = new AsyncRelayCommand(LoadCodeAsync_Logic);
     }
 
-    // --- Helper Method ---
+    // Helper Method
     private void SetStatus(string message, StatusMessageType type = StatusMessageType.Info)
     {
         StatusText = message;
@@ -189,8 +191,9 @@ public partial class MainWindowViewModel : ObservableObject
         Debug.WriteLine($"ViewModel Wall-E position updated: ({WallEX}, {WallEY})");
     }
 
-    // --- Commands ---
+    //  Commands
     // [RelayCommand]
+
     private async Task SaveCodeAsync_Logic()
     {
         SetStatus("Attempting to save code...", StatusMessageType.Info); // Inform the user
@@ -337,6 +340,57 @@ public partial class MainWindowViewModel : ObservableObject
             System.Diagnostics.Debug.WriteLine(StatusText);
         }
     }
+    private void OpenUrlInBrowser(string url)
+    {
+        try
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                // On Windows, Process.Start with UseShellExecute is reliable for URLs.
+                // It can also handle opening files with their default application.
+                Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                // xdg-open is the standard command for opening files/URLs on most Linux desktops.
+                Process.Start("xdg-open", url);
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                // 'open' is the command for macOS.
+                Process.Start("open", url);
+            }
+            else
+            {
+                // As a fallback for other platforms, or if the above fail,
+                // try the general UseShellExecute = true again.
+                // Or, you could log that the platform is not explicitly supported for URL opening.
+                Debug.WriteLine($"Attempting to open URL on unknown platform: {url}");
+                Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+            }
+            StatusText = $"Opening {url}...";
+        }
+        catch (Exception ex)
+        {
+            // This catch block handles errors from Process.Start itself (e.g., command not found)
+            StatusText = $"Error: Could not open URL. {ex.Message}";
+            Debug.WriteLine($"Failed to open URL '{url}'. Exception: {ex.Message}");
+            // Consider more specific error handling or user feedback here,
+            // like offering to copy the URL to the clipboard.
+        }
+    }
+    [RelayCommand]
+    private void OpenGitHubProfile()
+    {
+        string url = "https://github.com/FHP-CS";
+        OpenUrlInBrowser(url);
+    }
+    [RelayCommand]
+    private void OpenTelegramProfile()
+    {
+        string url = "https://t.me/BjornGC";
+        OpenUrlInBrowser(url);
+    }
 
     [RelayCommand]
     private void ApplyResize()
@@ -447,6 +501,6 @@ public partial class MainWindowViewModel : ObservableObject
     {
         // Optional: Update the canvas immediately if it's already set up
         // Or, the interpreter will pick it up when Run is called.
-        if(_pixelCanvas != null) _pixelCanvas.DrawDelayMs = value;
+        if (_pixelCanvas != null) _pixelCanvas.DrawDelayMs = value;
     }
 }

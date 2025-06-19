@@ -39,7 +39,7 @@ public partial class MainWindow : Window
         "IsBrushColor(", "IsBrushSize(", "IsCanvasColor(",
         "()", ")",
         // Colors (could be separate category later)
-        "Red", "Blue", "Green", "Yellow", "Orange", "Purple", "Black", "White", "Transparent",
+        "Red", "Blue", "Green", "Yellow", "Orange", "Purple", "Black", "White", "Transparent", "LightBlue", "DarkBlue", "Violet", "Brown", "Gray", "Grey", "Pink",
         @"""Red""" , @"""Blue""", @"""Green""", @"""Yellow""", @"""Orange""", @"""Purple""", @"""Black""", @"""White""", @"""Transparent"""
     };
 
